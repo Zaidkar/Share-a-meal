@@ -52,6 +52,19 @@ const userService = {
                 })
             }
         })
+    },
+
+    getById: (userId, callback) => {
+        database.getById(userId, (err, data) => {
+            if (err) {
+                callback(err, null)
+            } else {
+                callback(null, {
+                    message: `User with id ${userId} found.`,
+                    data: data
+                })
+            }
+        })
     }
 }
 

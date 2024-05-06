@@ -104,7 +104,7 @@ const database = {
                 callback(error, null)
             } else {
                 const deletedUser = this._data.splice(id, 1)[0]
-                this._data.delete(id, callback)
+                callback(null, deletedItem)
             }
         }, this._delayTime)
     }
