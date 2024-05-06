@@ -33,12 +33,24 @@ const database = {
             roles: ['student'],
             street: 'Lovendijkstraat',
             city: 'Breda'
+        },
+        {
+            id: 2,
+            firstName: 'Zaid',
+            lastName: 'Karmoudi',
+            emailAdress: 'z.karmoudi@server.nl',
+            password: 'Secret12',
+            isActive: false,
+            street: 'Lovensdijkstraat',
+            city: 'Breda',
+            phoneNumber: '06 12312345',
+            roles: []
         }
     ],
 
     // Ieder nieuw item in db krijgt 'autoincrement' index.
     // Je moet die wel zelf toevoegen aan ieder nieuw item.
-    _index: 2,
+    _index: 3,
     _delayTime: 500,
 
     getAll(callback) {

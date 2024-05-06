@@ -13,8 +13,8 @@ describe('UC201 Registreren als nieuwe user', () => {
         chai.request(server)
             .post(endpointToTest)
             .send({
-                lastName: 'Achternaam',
-                emailAdress: 'v.a@server.nl'
+                lastName: 'Van Dam',
+                emailAdress: 'M.Dam@server.nl'
             })
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
@@ -42,7 +42,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 emailAdress: '@server.nl',
                 password: 'Secret12',
                 isActive: false,
-                street: 'Lovensdijkstraat 61',
+                street: 'Lovensdijkstraat',
                 city: 'Breda',
                 phoneNumber: '06 12312345',
                 roles: []
@@ -70,7 +70,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 emailAdress: 'h.vd@server.nl',
                 password: 'Secret12',
                 isActive: false,
-                street: 'Lovensdijkstraat 61',
+                street: 'Lovensdijkstraat',
                 city: 'Breda',
                 phoneNumber: '06 12312345',
                 roles: []
