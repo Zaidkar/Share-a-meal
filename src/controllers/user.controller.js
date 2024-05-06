@@ -15,8 +15,8 @@ let userController = {
                 })
             }
             if (success) {
-                res.status(200).json({
-                    status: success.status,
+                res.status(201).json({
+                    status: 201,
                     message: success.message,
                     data: success.data
                 })
@@ -48,7 +48,7 @@ let userController = {
         userService.getById(userId, (error, success) => {
             if (error) {
                 return next({
-                    status: error.status,
+                    status: 404,
                     message: error.message,
                     data: {}
                 })

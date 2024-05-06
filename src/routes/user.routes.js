@@ -3,6 +3,7 @@ const assert = require('assert')
 const chai = require('chai')
 chai.should()
 const router = express.Router()
+const database = require('../dao/inmem-db')
 const userController = require('../controllers/user.controller')
 
 // Tijdelijke functie om niet bestaande routes op te vangen
@@ -72,8 +73,89 @@ const validateUserCreateChaiExpect = (req, res, next) => {
     }
 }
 
+const validateUserChaiExpect = (req, res, next) => {
+    try {
+        assert(req.body.firstName, 'firstName field is missing or incorrect')
+        chai.expect(req.body.firstName).to.be.a('string')
+        chai.expect(req.body.firstName).to.not.be.empty
+
+        assert(req.body.lastName, 'lastName field is missing or incorrect')
+        chai.expect(req.body.lastName).to.not.be.empty
+
+        assert(
+            req.body.emailAdress,
+            'emailAdress field is missing or incorrect'
+        )
+        chai.expect(req.body.emailAdress).to.be.a('string')
+        chai.expect(req.body.emailAdress).to.not.be.empty
+        chai.expect(req.body.emailAdress).to.match(
+            /^\w+([\.]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+            'Email must need follow the format where by f.lastname@domain.com. firstname at least 1 character, lastname at least 2 characters domain also atleast 2 characters and domain extension 2 to 3 characters'
+        )
+
+        assert(req.body.password, 'password field is missing or incorrect')
+        chai.expect(req.body.password).to.be.a('string')
+        chai.expect(req.body.password).to.not.be.empty
+        chai.expect(req.body.password).to.match(
+            /^(?=.*[A-Z])(?=.*\d).{8,}$/,
+            'Password must be at least 8 characters long contain a digit and a capital letter'
+        )
+
+        assert(req.body.street, 'street field is missing or incorrect')
+        chai.expect(req.body.street).to.be.a('string')
+        chai.expect(req.body.street).to.not.be.empty
+
+        assert(req.body.city, 'city field is missing or incorrect')
+        chai.expect(req.body.city).to.be.a('string')
+        chai.expect(req.body.city).to.not.be.empty
+
+        assert(
+            req.body.phoneNumber,
+            'phoneNumber field is missing or incorrect'
+        )
+        chai.expect(req.body.phoneNumber).to.be.a('string')
+        chai.expect(req.body.phoneNumber).to.not.be.empty
+        chai.expect(req.body.phoneNumber).to.match(
+            /^06[\s-]?\d{8}$/,
+            'Phone number must be at least 10 characters long and start with 06 and can have either a hypen or empty space or nothing after the 06'
+        )
+
+        assert(req.body.roles, 'Missing or incorrect role field')
+        chai.expect(req.body.roles).to.be.a('array')
+
+        next()
+    } catch (ex) {
+        return res.status(400).json({
+            status: 400,
+            message: ex.message,
+            data: {}
+        })
+    }
+}
+
+const validateUserUniqueEmail = (req, res, next) => {
+    const emailExists = database._data.some(
+        (user) => user.emailAdress === req.body.emailAdress
+    )
+
+    if (emailExists) {
+        return next({
+            status: 403,
+            message: 'User with email address already exists',
+            data: {}
+        })
+    }
+
+    next()
+}
+
 // Userroutes
-router.post('/api/user', userController.create)
+router.post(
+    '/api/user',
+    validateUserUniqueEmail,
+    validateUserChaiExpect,
+    userController.create
+)
 router.get('/api/user', userController.getAll)
 router.get('/api/user/:userId', userController.getById)
 
