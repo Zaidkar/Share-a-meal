@@ -26,6 +26,32 @@ const userService = {
                 })
             }
         })
+    },
+
+    update(userId, userUpdated, callback) {
+        database.update(userId, userUpdated, (err, data) => {
+            if (err) {
+                callback(err, null)
+            } else {
+                callback(null, {
+                    message: `User with ${userId} updated`,
+                    data: data
+                })
+            }
+        })
+    },
+
+    delete: (userId, callback) => {
+        database.delete(userId, (err, data) => {
+            if (err) {
+                callback(err, null)
+            } else {
+                callback(null, {
+                    message: `User with ${userId} deleted.`,
+                    data: data
+                })
+            }
+        })
     }
 }
 
