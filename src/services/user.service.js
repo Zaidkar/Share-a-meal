@@ -2,7 +2,7 @@ const database = require('../dao/inmem-db')
 
 const userService = {
     create: (user, callback) => {
-        database.create(user, (err, data) => {
+        database.add(user, (err, data) => {
             if (err) {
                 callback(err, null)
             } else {

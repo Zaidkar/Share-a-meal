@@ -76,14 +76,15 @@ let userController = {
                     data: {}
                 })
             }
+
+            if (success) {
+                res.status(200).json({
+                    status: success.status,
+                    message: success.message,
+                    data: success.data
+                })
+            }
         })
-        if (success) {
-            res.status(200).json({
-                status: success.status,
-                message: success.message,
-                data: success.data
-            })
-        }
     },
 
     delete: (req, res, next) => {
