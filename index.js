@@ -21,7 +21,7 @@ app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
     const info = {
         name: 'My Nodejs Express server',
-        version: '0.0.1',
+        version: '0.0.2',
         description: 'This is a simple Nodejs Express server'
     }
     res.json(info)

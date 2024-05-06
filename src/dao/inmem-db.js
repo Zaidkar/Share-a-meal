@@ -12,15 +12,27 @@ const database = {
             id: 0,
             firstName: 'Hendrik',
             lastName: 'van Dam',
-            emailAdress: 'hvd@server.nl'
+            emailAdress: 'h.vd@server.nl',
             // Hier de overige velden uit het functioneel ontwerp
+            isActive: true,
+            password: 'Secret12',
+            phoneNumber: '0612345678',
+            roles: ['student'],
+            street: 'Lovendijkstraat',
+            city: 'Breda'
         },
         {
             id: 1,
             firstName: 'Marieke',
             lastName: 'Jansen',
-            emailAdress: 'm@server.nl'
+            emailAdress: 'm.jn@server.nl',
             // Hier de overige velden uit het functioneel ontwerp
+            isActive: true,
+            password: 'Secret14',
+            phoneNumber: '0687654321',
+            roles: ['student'],
+            street: 'Lovendijkstraat',
+            city: 'Breda'
         }
     ],
 
@@ -60,9 +72,42 @@ const database = {
             // met het toegevoegde item als argument, of null als er een fout is opgetreden
             callback(null, item)
         }, this._delayTime)
-    }
+    },
 
-    // Voeg zelf de overige database functionaliteit toe
+    update(id, userData, callback) {
+        setTimeout(() => {
+            if (id < 0 || id >= this._data.length) {
+                const error = {
+                    message: `Error: id ${id} does not exist!`,
+                    status: 404
+                }
+                callback(error, null)
+            } else {
+                for (let field in userData) {
+                    if (field !== 'id') {
+                        this._data[id][field] = userData[field]
+                    }
+                }
+
+                callback(null, this._data[id])
+            }
+        }, this._delayTime)
+    },
+
+    delete(id, callback) {
+        setTimeout(() => {
+            if (id < 0 || id >= this._data.length) {
+                const error = {
+                    message: `Error: id ${id} does not exist!`,
+                    status: 404
+                }
+                callback(error, null)
+            } else {
+                const deletedUser = this._data.splice(id, 1)[0]
+                callback(null, deletedUser)
+            }
+        }, this._delayTime)
+    }
 }
 
 module.exports = database
