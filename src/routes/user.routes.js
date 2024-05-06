@@ -165,9 +165,7 @@ router.post(
 )
 router.get('/api/user', userController.getAll)
 router.get('/api/user/:userId', userController.getById)
-
-// Tijdelijke routes om niet bestaande routes op te vangen
-router.put('/api/user/:userId', userController.update)
+router.put('/api/user/:userId', validateUserChaiExpect, userController.update)
 router.delete('/api/user/:userId', userController.delete)
 
 module.exports = router
