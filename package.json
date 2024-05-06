@@ -1,6 +1,6 @@
 {
     "name": "My First Express Server",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Mijn eerste Express server",
     "main": "index.js",
     "scripts": {
@@ -14,7 +14,7 @@
         "avans",
         "programmeren-4"
     ],
-    "author": "Robin",
+    "author": "Zaid",
     "license": "ISC",
     "prettier": {
         "singleQuote": true,
@@ -26,6 +26,9 @@
         "express": "^4.19.2"
     },
     "devDependencies": {
+        "chai": "^4.3.10",
+        "chai-http": "^4.4.0",
+        "mocha": "^10.4.0",
         "nodemon": "^3.1.0"
     }
 }
