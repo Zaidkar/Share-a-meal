@@ -14,7 +14,10 @@ app.all('*', (req, res, next) => {
 })
 
 app.get('/', function (req, res) {
-    res.json({ message: 'Hello World' })
+    res.json({
+        message:
+            'Hello World! welcome to the share a meal API made by Zaid Karmoudi'
+    })
 })
 
 app.get('/api/info', (req, res) => {
@@ -22,7 +25,8 @@ app.get('/api/info', (req, res) => {
     const info = {
         name: 'My Nodejs Express server',
         version: '0.0.2',
-        description: 'This is a simple Nodejs Express server'
+        description:
+            'This is a simple Nodejs Express server made by Zaid Karmoudi for the course programming 4'
     }
     res.json(info)
 })

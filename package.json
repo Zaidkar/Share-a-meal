@@ -1,5 +1,5 @@
 {
-    "name": "My First Express Server",
+    "name": "Share a meal",
     "version": "0.0.2",
     "description": "Mijn eerste Express server",
     "main": "index.js",
@@ -14,7 +14,7 @@
         "avans",
         "programmeren-4"
     ],
-    "author": "Zaid",
+    "author": "Zaid Karmoudi",
     "license": "ISC",
     "prettier": {
         "singleQuote": true,
