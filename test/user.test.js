@@ -5,7 +5,6 @@ const tracer = require('tracer')
 
 chai.should()
 chai.use(chaiHttp)
-tracer.setLevel('warn')
 
 const endpointToTest = '/api/user'
 
@@ -14,7 +13,6 @@ describe('UC201 Registreren als nieuwe user', () => {
         chai.request(server)
             .post(endpointToTest)
             .send({
-                // firstName: 'Voornaam', ontbreekt
                 lastName: 'Achternaam',
                 emailAdress: 'v.a@server.nl'
             })
@@ -35,16 +33,86 @@ describe('UC201 Registreren als nieuwe user', () => {
             })
     })
 
-    it.skip('TC-201-2 Niet-valide email adres', (done) => {
-        done()
+    it('TC-201-2 Niet-valide emailadres', (done) => {
+        chai.request(server)
+            .post(endpointToTest)
+            .send({
+                firstName: 'Mark',
+                lastName: 'Van Dam',
+                emailAdress: '@server.nl',
+                password: 'Secret12',
+                isActive: false,
+                street: 'Lovensdijkstraat 61',
+                city: 'Breda',
+                phoneNumber: '06 12312345',
+                roles: []
+            })
+            .end((err, res) => {
+                chai.expect(res).to.have.status(400)
+                chai.expect(res).not.to.have.status(200)
+                chai.expect(res.body).to.be.a('object')
+                chai.expect(res.body).to.have.property('status').equals(400)
+                chai
+                    .expect(res.body)
+                    .to.have.property('data')
+                    .that.is.a('object').that.is.empty
+
+                done()
+            })
     })
 
-    it.skip('TC-201-3 Niet-valide password', (done) => {
-        done()
+    it('TC-201-3 Niet-valide wachtwoord', (done) => {
+        chai.request(server)
+            .post(endpointToTest)
+            .send({
+                firstName: 'Hendrik',
+                lastName: 'Van Dam',
+                emailAdress: 'h.vd@server.nl',
+                password: 'Secret12',
+                isActive: false,
+                street: 'Lovensdijkstraat 61',
+                city: 'Breda',
+                phoneNumber: '06 12312345',
+                roles: []
+            })
+            .end((err, res) => {
+                chai.expect(res).to.have.status(403)
+                chai.expect(res).not.to.have.status(200)
+                chai.expect(res.body).to.be.a('object')
+                chai.expect(res.body).to.have.property('status').equals(403)
+                chai
+                    .expect(res.body)
+                    .to.have.property('data')
+                    .that.is.a('object').that.is.empty
+                done()
+            })
     })
 
-    it.skip('TC-201-4 Gebruiker bestaat al', (done) => {
-        done()
+    it('TC-201-4 Gebruiker bestaat al', (done) => {
+        chai.request(server)
+            .post(endpointToTest)
+            .send({
+                firstName: 'Mark',
+                lastName: 'Van Dam',
+                emailAdress: 'h.vd@server.nl',
+                password: 'secret12',
+                isActive: false,
+                street: 'Lovensdijkstraat 61',
+                city: 'Breda',
+                phoneNumber: '06 12312345',
+                roles: []
+            })
+            .end((err, res) => {
+                chai.expect(res).to.have.status(403)
+                chai.expect(res).not.to.have.status(200)
+                chai.expect(res.body).to.be.a('object')
+                chai.expect(res.body).to.have.property('status').equals(403)
+                chai
+                    .expect(res.body)
+                    .to.have.property('data')
+                    .that.is.a('object').that.is.empty
+                done()
+            })
     })
 
     it('TC-201-5 Gebruiker succesvol geregistreerd', (done) => {

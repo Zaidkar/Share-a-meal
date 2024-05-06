@@ -80,17 +80,24 @@ const validateUserChaiExpect = (req, res, next) => {
         chai.expect(req.body.firstName).to.not.be.empty
 
         assert(req.body.lastName, 'lastName field is missing or incorrect')
+        chai.expect(req.body.lastName).to.be.a('string')
         chai.expect(req.body.lastName).to.not.be.empty
 
         assert(
             req.body.emailAdress,
             'emailAdress field is missing or incorrect'
         )
-        chai.expect(req.body.emailAdress).to.be.a('string')
-        chai.expect(req.body.emailAdress).to.not.be.empty
+        chai.expect(
+            req.body.emailAdress,
+            'emailAdress field is missing or incorrect'
+        ).to.be.a('string')
+        chai.expect(
+            req.body.emailAdress,
+            'emailAdress field is missing or incorrect'
+        ).to.not.be.empty
         chai.expect(req.body.emailAdress).to.match(
             /^\w+([\.]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            'Email must need follow the format where by f.lastname@domain.com. firstname at least 1 character, lastname at least 2 characters domain also atleast 2 characters and domain extension 2 to 3 characters'
+            'Email must follow the format where by f.lastname@domain.com. firstname at least 1 character, lastname at least 2 characters domain also atleast 2 characters and domain extension 2 to 3 characters'
         )
 
         assert(req.body.password, 'password field is missing or incorrect')
@@ -139,7 +146,7 @@ const validateUserUniqueEmail = (req, res, next) => {
     )
 
     if (emailExists) {
-        return next({
+        return res.status(403).json({
             status: 403,
             message: 'User with email address already exists',
             data: {}
