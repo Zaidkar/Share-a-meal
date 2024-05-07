@@ -20,7 +20,7 @@ connection.query(
 // Using placeholders, prepared statements
 connection.query(
     'SELECT * FROM `user` WHERE `firstName` = ? AND `id` > ?',
-    ['Herman', 1],
+    ['Herman', -1],
     function (err, results) {
         console.log(results)
     }
