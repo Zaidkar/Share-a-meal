@@ -10,6 +10,7 @@
 
 # Ignore log files
 *.log
+*.env
 
 # Ignore user-specific files
 /.env
