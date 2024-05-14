@@ -75,6 +75,23 @@ const validateUserCreateChaiExpect = (req, res, next) => {
     }
 }
 
+const validatePasswordCreateChaiExpect = (req, res, next) => {
+    try {
+        chai.expect(req.body.password).to.match(
+            /^(?=.*[A-Z])(?=.*\d).{8,}$/,
+            'Password must be at least 8 characters long contain a digit and a capital letter'
+        )
+
+        next()
+    } catch (error) {
+        return res.status(403).json({
+            status: 403,
+            message: error.message,
+            data: {}
+        })
+    }
+}
+
 const validateUserChaiExpect = (req, res, next) => {
     try {
         assert(req.body.firstName, 'firstName field is missing or incorrect')
@@ -105,10 +122,6 @@ const validateUserChaiExpect = (req, res, next) => {
         assert(req.body.password, 'password field is missing or incorrect')
         chai.expect(req.body.password).to.be.a('string')
         chai.expect(req.body.password).to.not.be.empty
-        chai.expect(req.body.password).to.match(
-            /^(?=.*[A-Z])(?=.*\d).{8,}$/,
-            'Password must be at least 8 characters long contain a digit and a capital letter'
-        )
 
         assert(req.body.street, 'street field is missing or incorrect')
         chai.expect(req.body.street).to.be.a('string')
@@ -139,33 +152,17 @@ const validateUserChaiExpect = (req, res, next) => {
     }
 }
 
-const validateUserUniqueEmail = (req, res, next) => {
-    // const emailExists = database._data.some(
-    //     (user) => user.emailAdress === req.body.emailAdress
-    // )
-
-    // if (emailExists) {
-    //     return res.status(403).json({
-    //         status: 403,
-    //         message: 'User with email address already exists',
-    //         data: {}
-    //     })
-    // }
-
-    next()
-}
-
 // Userroutes
 router.post(
     '/api/user',
-    validateUserUniqueEmail,
     validateUserChaiExpect,
+    validatePasswordCreateChaiExpect,
     userController.create
 )
 router.get('/api/user', userController.getAll)
 router.get('/api/user/:userId', userController.getById)
 router.put('/api/user/:userId', validateUserChaiExpect, userController.update)
 router.delete('/api/user/:userId', userController.delete)
-router.get('/api/user/profile', validateToken, userController.getProfile)
+router.get('/api/profile', validateToken, userController.getProfile)
 
 module.exports = router

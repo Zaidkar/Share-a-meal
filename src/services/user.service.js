@@ -30,11 +30,13 @@ const userService = {
                     connection.release()
 
                     if (error) {
-                        if (error.message.includes('Duplicate entry')) {
+                        if (error.code === 'ER_DUP_ENTRY') {
                             logger.error(error)
-                            error.status = 403
-                            error.message = 'User with email already exists'
-                            callback(error, null)
+                            const duplicateError = new Error(
+                                'User with email already exists'
+                            )
+                            duplicateError.status = 403
+                            callback(duplicateError, null)
                         } else {
                             logger.error(error)
                             callback(error, null)
@@ -50,7 +52,6 @@ const userService = {
             )
         })
     },
-
     update: (userId, updatedUser, callback) => {
         logger.info('update userId:', userId)
 
@@ -78,21 +79,22 @@ const userService = {
                     connection.release()
 
                     if (error) {
-                        if (error.message.includes('Duplicate entry')) {
-                            logger.error(error)
-                            error.status = 403
-                            error.message = 'User with email already exists'
-                            callback(error, null)
-                        } else {
-                            logger.error(error)
-                            callback(error, null)
-                        }
+                        logger.error(error)
+                        callback(error, null)
                     } else {
                         logger.debug(results)
-                        callback(null, {
-                            message: `User with id ${userId} updated successfully.`,
-                            data: updatedUser
-                        })
+                        if (results.affectedRows === 0) {
+                            const notFoundError = new Error(
+                                `User with id ${userId} not found.`
+                            )
+                            notFoundError.status = 404
+                            callback(notFoundError, null)
+                        } else {
+                            callback(null, {
+                                message: `User with id ${userId} updated successfully.`,
+                                data: updatedUser
+                            })
+                        }
                     }
                 }
             )
@@ -217,7 +219,7 @@ const userService = {
             }
 
             connection.query(
-                'SELECT id, firstName, lastName, emailAdress, password, emailAdress, phoneNumber, isActive  FROM `user` WHERE id = ?',
+                'SELECT * FROM `user` WHERE id = ?',
                 [userId],
                 function (error, results, fields) {
                     connection.release()

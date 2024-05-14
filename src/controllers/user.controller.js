@@ -3,6 +3,7 @@ const logger = require('../util/logger')
 
 let userController = {
     create: (req, res, next) => {
+        logger.trace('create')
         const user = req.body
         userService.create(user, (error, success) => {
             if (error) {

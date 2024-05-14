@@ -1,5 +1,6 @@
 const express = require('express')
 const userRoutes = require('./src/routes/user.routes')
+const mealRoutes = require('./src/routes/meal.routes')
 const authRoutes = require('./src/routes/authentication.routes').routes
 const logger = require('./src/util/logger')
 
@@ -38,6 +39,7 @@ app.get('/api/info', (req, res) => {
 // Hier komen alle routes
 app.use(userRoutes)
 app.use('/api/', authRoutes)
+app.use(mealRoutes)
 
 // Hier komt de route error handler te staan!
 app.use((req, res, next) => {
