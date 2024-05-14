@@ -1,5 +1,6 @@
 const express = require('express')
 const userRoutes = require('./src/routes/user.routes')
+const authRoutes = require('./src/routes/authentication.routes').routes
 const logger = require('./src/util/logger')
 
 const app = express()
@@ -9,21 +10,36 @@ app.use(express.json())
 
 const port = process.env.PORT || 3000
 
-// Dit is een voorbeeld van een simpele route
+app.all('*', (req, res, next) => {
+    console.log('Request:', req.method, req.url)
+    next()
+})
+
+app.get('/', function (req, res) {
+    res.json({
+        message:
+            'Hello World! welcome to the share a meal API made by Zaid Karmoudi'
+    })
+})
+
 app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
     const info = {
-        name: 'My Nodejs Express server',
-        version: '0.0.1',
-        description: 'This is a simple Nodejs Express server'
+        name: 'Share a meal Restful API',
+        studentName: 'Zaid Karmoudi',
+        studentNumber: '2102960',
+        version: '0.1.0',
+        description:
+            'This is an Restful API for the Share a meal application made by Zaid Karmoudi.'
     }
     res.json(info)
 })
 
 // Hier komen alle routes
 app.use(userRoutes)
+app.use('/api/', authRoutes)
 
-// Route error handler
+// Hier komt de route error handler te staan!
 app.use((req, res, next) => {
     next({
         status: 404,
@@ -42,7 +58,7 @@ app.use((error, req, res, next) => {
 })
 
 app.listen(port, () => {
-    logger.info(`Server is running on port ${port}`)
+    console.log(`Server is running on port ${port}`)
 })
 
 // Deze export is nodig zodat Chai de server kan opstarten
