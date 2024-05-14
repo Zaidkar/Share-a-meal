@@ -2,10 +2,16 @@ const database = require('../dao/inmem-db')
 
 const userService = {
     create: (user, callback) => {
+        logger.info('create user', user)
         database.add(user, (err, data) => {
             if (err) {
+                logger.info(
+                    'error creating user: ',
+                    err.message || 'unknown error'
+                )
                 callback(err, null)
             } else {
+                logger.trace(`User created with id ${data.id}.`)
                 callback(null, {
                     message: `User created with id ${data.id}.`,
                     data: data
@@ -15,55 +21,62 @@ const userService = {
     },
 
     getAll: (callback) => {
-        database.getAll((err, data) => {
+        logger.info('getAll')
+        db.getConnection(function (err, connection) {
             if (err) {
+                logger.error(err)
                 callback(err, null)
-            } else {
-                console.log(data)
-                callback(null, {
-                    message: `Found ${data.length} users.`,
-                    data: data
-                })
+                return
             }
+
+            connection.query(
+                'SELECT id, firstName, lastName FROM `user`',
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        logger.error(error)
+                        callback(error, null)
+                    } else {
+                        logger.debug(results)
+                        callback(null, {
+                            message: `Found ${results.length} users.`,
+                            data: results
+                        })
+                    }
+                }
+            )
         })
     },
 
-    update(userId, userUpdated, callback) {
-        database.update(userId, userUpdated, (err, data) => {
-            if (err) {
-                callback(err, null)
-            } else {
-                callback(null, {
-                    message: `User with ${userId} updated`,
-                    data: data
-                })
-            }
-        })
-    },
+    getProfile: (userId, callback) => {
+        logger.info('getProfile userId:', userId)
 
-    delete: (userId, callback) => {
-        database.delete(userId, (err, data) => {
+        db.getConnection(function (err, connection) {
             if (err) {
+                logger.error(err)
                 callback(err, null)
-            } else {
-                callback(null, {
-                    message: `User with ${userId} deleted.`,
-                    data: data
-                })
+                return
             }
-        })
-    },
 
-    getById: (userId, callback) => {
-        database.getById(userId, (err, data) => {
-            if (err) {
-                callback(err, null)
-            } else {
-                callback(null, {
-                    message: `User with id ${userId} found.`,
-                    data: data
-                })
-            }
+            connection.query(
+                'SELECT id, firstName, lastName FROM `user` WHERE id = ?',
+                [userId],
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        logger.error(error)
+                        callback(error, null)
+                    } else {
+                        logger.debug(results)
+                        callback(null, {
+                            message: `Found ${results.length} user.`,
+                            data: results
+                        })
+                    }
+                }
+            )
         })
     }
 }
