@@ -6,20 +6,135 @@ const db = require('../dao/mysql-db')
 const userService = {
     create: (user, callback) => {
         logger.info('create user', user)
-        database.add(user, (err, data) => {
+        db.getConnection(function (err, connection) {
             if (err) {
-                logger.info(
-                    'error creating user: ',
-                    err.message || 'unknown error'
-                )
+                logger.error(err)
                 callback(err, null)
-            } else {
-                logger.trace(`User created with id ${data.id}.`)
-                callback(null, {
-                    message: `User created with id ${data.id}.`,
-                    data: data
-                })
+                return
             }
+
+            connection.query(
+                'INSERT INTO `user` (firstName, lastName, emailAdress, password, street, city, isActive, phoneNumber, roles ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [
+                    user.firstName,
+                    user.lastName,
+                    user.emailAdress,
+                    user.password,
+                    user.street,
+                    user.city,
+                    1,
+                    user.phoneNumber,
+                    'guest,editor'
+                ],
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        if (error.message.includes('Duplicate entry')) {
+                            logger.error(error)
+                            error.status = 403
+                            error.message = 'User with email already exists'
+                            callback(error, null)
+                        } else {
+                            logger.error(error)
+                            callback(error, null)
+                        }
+                    } else {
+                        logger.debug(results)
+                        callback(null, {
+                            message: `User with id ${results.insertId} created.`,
+                            data: results
+                        })
+                    }
+                }
+            )
+        })
+    },
+
+    update: (userId, updatedUser, callback) => {
+        logger.info('update userId:', userId)
+
+        db.getConnection(function (err, connection) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+                return
+            }
+
+            connection.query(
+                'UPDATE `user` SET firstName=?, lastName=?, emailAdress=?, password=?, street=?, city=?, phoneNumber=?, isActive=? WHERE id=?',
+                [
+                    updatedUser.firstName,
+                    updatedUser.lastName,
+                    updatedUser.emailAdress,
+                    updatedUser.password,
+                    updatedUser.street,
+                    updatedUser.city,
+                    updatedUser.phoneNumber,
+                    updatedUser.isActive,
+                    userId
+                ],
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        if (error.message.includes('Duplicate entry')) {
+                            logger.error(error)
+                            error.status = 403
+                            error.message = 'User with email already exists'
+                            callback(error, null)
+                        } else {
+                            logger.error(error)
+                            callback(error, null)
+                        }
+                    } else {
+                        logger.debug(results)
+                        callback(null, {
+                            message: `User with id ${userId} updated successfully.`,
+                            data: updatedUser
+                        })
+                    }
+                }
+            )
+        })
+    },
+
+    delete: (userId, callback) => {
+        logger.info('to delete userId:', userId)
+
+        db.getConnection(function (err, connection) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+                return
+            }
+
+            connection.query(
+                'DELETE FROM `user` WHERE id = ?',
+                [userId],
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        logger.error(error)
+                        callback(error, null)
+                    } else {
+                        if (results.affectedRows === 0) {
+                            const Error404 = new Error()
+                            Error404.message = `User with id ${userId} could not be found.`
+                            Error404.status = 404
+                            logger.error(Error404)
+                            callback(Error404, null)
+                        } else {
+                            logger.debug(results)
+                            callback(null, {
+                                message: `User with id ${userId} deleted successfully.`,
+                                data: results
+                            })
+                        }
+                    }
+                }
+            )
         })
     },
 
@@ -33,7 +148,7 @@ const userService = {
             }
 
             connection.query(
-                'SELECT id, firstName, lastName FROM `user`',
+                'SELECT * FROM `user`',
                 function (error, results, fields) {
                     connection.release()
 
@@ -52,6 +167,45 @@ const userService = {
         })
     },
 
+    getById: (userId, callback) => {
+        logger.info('getById userId:', userId)
+
+        db.getConnection(function (err, connection) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+                return
+            }
+
+            connection.query(
+                'SELECT id, firstName, lastName, emailAdress FROM `user` WHERE id = ?',
+                [userId],
+                function (error, results, fields) {
+                    connection.release()
+
+                    if (error) {
+                        logger.error(error)
+                        callback(error, null)
+                    } else {
+                        if (results.length === 0) {
+                            const noUserError = new Error(
+                                `User with id ${userId} not found.`
+                            )
+                            logger.error(noUserError)
+                            callback(noUserError, null)
+                        } else {
+                            logger.debug(results)
+                            callback(null, {
+                                message: `Found user with id: ${userId}.`,
+                                data: results
+                            })
+                        }
+                    }
+                }
+            )
+        })
+    },
+
     getProfile: (userId, callback) => {
         logger.info('getProfile userId:', userId)
 
@@ -63,7 +217,7 @@ const userService = {
             }
 
             connection.query(
-                'SELECT id, firstName, lastName FROM `user` WHERE id = ?',
+                'SELECT id, firstName, lastName, emailAdress, password, emailAdress, phoneNumber, isActive  FROM `user` WHERE id = ?',
                 [userId],
                 function (error, results, fields) {
                     connection.release()

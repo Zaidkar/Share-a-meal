@@ -1,5 +1,7 @@
 const express = require('express')
 const userRoutes = require('./src/routes/user.routes')
+const authRoutes = require('./src/routes/authentication.routes').routes
+const logger = require('./src/util/logger')
 
 const app = express()
 
@@ -23,16 +25,19 @@ app.get('/', function (req, res) {
 app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
     const info = {
-        name: 'My Nodejs Express server',
-        version: '0.0.2',
+        name: 'Share a meal Restful API',
+        studentName: 'Zaid Karmoudi',
+        studentNumber: '2102960',
+        version: '0.1.0',
         description:
-            'This is a simple Nodejs Express server made by Zaid Karmoudi for the course programming 4'
+            'This is an Restful API for the Share a meal application made by Zaid Karmoudi.'
     }
     res.json(info)
 })
 
 // Hier komen alle routes
 app.use(userRoutes)
+app.use('/api/', authRoutes)
 
 // Hier komt de route error handler te staan!
 app.use((req, res, next) => {

@@ -3,8 +3,10 @@ const assert = require('assert')
 const chai = require('chai')
 chai.should()
 const router = express.Router()
-const database = require('../dao/inmem-db')
 const userController = require('../controllers/user.controller')
+const validateToken = require('./authentication.routes').validateToken
+const logger = require('../util/logger')
+const authController = require('../services/authentication.service')
 
 // Tijdelijke functie om niet bestaande routes op te vangen
 const notFound = (req, res, next) => {
@@ -127,9 +129,6 @@ const validateUserChaiExpect = (req, res, next) => {
             'Phone number must be at least 10 characters long and start with 06 and can have either a hypen or empty space or nothing after the 06'
         )
 
-        assert(req.body.roles, 'Missing or incorrect role field')
-        chai.expect(req.body.roles).to.be.a('array')
-
         next()
     } catch (ex) {
         return res.status(400).json({
@@ -167,5 +166,6 @@ router.get('/api/user', userController.getAll)
 router.get('/api/user/:userId', userController.getById)
 router.put('/api/user/:userId', validateUserChaiExpect, userController.update)
 router.delete('/api/user/:userId', userController.delete)
+router.get('/api/user/profile', validateToken, userController.getProfile)
 
 module.exports = router
