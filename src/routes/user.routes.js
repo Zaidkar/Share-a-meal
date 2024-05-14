@@ -141,17 +141,17 @@ const validateUserChaiExpect = (req, res, next) => {
 }
 
 const validateUserUniqueEmail = (req, res, next) => {
-    const emailExists = database._data.some(
-        (user) => user.emailAdress === req.body.emailAdress
-    )
+    // const emailExists = database._data.some(
+    //     (user) => user.emailAdress === req.body.emailAdress
+    // )
 
-    if (emailExists) {
-        return res.status(403).json({
-            status: 403,
-            message: 'User with email address already exists',
-            data: {}
-        })
-    }
+    // if (emailExists) {
+    //     return res.status(403).json({
+    //         status: 403,
+    //         message: 'User with email address already exists',
+    //         data: {}
+    //     })
+    // }
 
     next()
 }

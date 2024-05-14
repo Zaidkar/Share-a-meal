@@ -1,4 +1,5 @@
 const userService = require('../services/user.service')
+const logger = require('../util/logger')
 
 let userController = {
     create: (req, res, next) => {
@@ -25,6 +26,7 @@ let userController = {
     },
 
     getAll: (req, res, next) => {
+        logger.trace('getAll')
         userService.getAll((error, success) => {
             if (error) {
                 return next({
