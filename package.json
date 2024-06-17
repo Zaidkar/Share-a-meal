@@ -4,7 +4,7 @@
     "description": "This server is made so people all over the world can share meal recipes with each other",
     "main": "index.js",
     "scripts": {
-        "start": "node index.js",
+        "build": "node index.js",
         "dev": "nodemon index.js",
         "test": "mocha -reporter spec test/**/*.test.js --exit"
     },
