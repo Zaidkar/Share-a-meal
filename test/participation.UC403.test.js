@@ -56,8 +56,8 @@ describe('UC-403 Opvragen van deelnemers', () => {
     })
 
     it('TC-403-1 Lijst van deelnemers aan een maaltijd geretourneerd', (done) => {
-        const mealId = 1
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+        const mealId = 3
+        const token = jwt.sign({ userId: 2 }, jwtSecretKey)
         chai.request(server)
             .get(`${endpointToTest}/${mealId}/participants`)
             .set('Authorization', `Bearer ${token}`)
@@ -70,7 +70,7 @@ describe('UC-403 Opvragen van deelnemers', () => {
                     chai.expect(res.body)
                         .to.have.property('data')
                         .that.is.an('array')
-                        .with.lengthOf(3)
+                        .with.lengthOf(2)
 
                     res.body.data.forEach((participant) => {
                         chai.expect(participant).to.have.property('id')

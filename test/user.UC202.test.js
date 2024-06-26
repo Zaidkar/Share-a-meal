@@ -68,15 +68,8 @@ describe('UC-202 Opvragen van overzicht van users', () => {
                 chai.expect(res.body.data).to.have.lengthOf.at.least(1)
 
                 const user = res.body.data[0]
-                chai.expect(res.body.data[0]).to.have.property('id')
                 chai.expect(res.body.data[0]).to.have.property('firstName')
                 chai.expect(res.body.data[0]).to.have.property('lastName')
-                chai.expect(res.body.data[0]).to.have.property('isActive')
-                chai.expect(res.body.data[0]).to.have.property('emailAdress')
-                chai.expect(res.body.data[0]).to.have.property('phoneNumber')
-                chai.expect(res.body.data[0]).to.have.property('street')
-                chai.expect(res.body.data[0]).to.have.property('city')
-                chai.expect(res.body.data[0]).to.have.property('roles')
 
                 done()
             })

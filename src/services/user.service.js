@@ -110,7 +110,7 @@ const userService = {
             }
 
             connection.query(
-                'SELECT * FROM `user`',
+                'SELECT firstName, lastName, isActive, emailAdress, phoneNumber, roles FROM `user`',
                 function (error, results, fields) {
                     connection.release()
 
@@ -164,30 +164,11 @@ const userService = {
                         }
 
                         userData = userResults[0]
-
-                        connection.query(
-                            `SELECT * FROM meal WHERE cookId = ?`,
-                            [id],
-                            function (mealError, mealResults, fields) {
-                                connection.release()
-
-                                if (mealError) {
-                                    logger.error(mealError)
-                                    callback(mealError, null)
-                                } else {
-                                    logger.debug(mealResults)
-
-                                    callback(null, {
-                                        message: `Found user with id ${id}.`,
-                                        data: {
-                                            user: userData,
-                                            meals: mealResults
-                                        },
-                                        status: 200
-                                    })
-                                }
-                            }
-                        )
+                        callback(null, {
+                            message: `Found user with id ${id}.`,
+                            data: userData,
+                            status: 200
+                        })
                     }
                 }
             )

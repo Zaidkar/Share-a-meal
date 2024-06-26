@@ -3,16 +3,18 @@ const logger = require('../util/logger')
 const userService = require('./user.service')
 
 const participationService = {
-    getAllParticipants: (mealId, callback = () => {}) => {
-        logger.info(`Fetching participants for meal ID: ${mealId}`)
+    getAllParticipants: (mealId, userId, callback = () => {}) => {
+        logger.info(
+            `Fetching participants for meal ID: ${mealId} by user ID: ${userId}`
+        )
 
         db.query(
-            'SELECT userId FROM meal_participants_user WHERE mealId = ?',
+            'SELECT cookId FROM meal WHERE id = ?',
             [mealId],
-            (error, results) => {
-                if (error) {
+            (mealError, mealResults) => {
+                if (mealError) {
                     logger.error(
-                        `Database error while fetching participants for meal ID ${mealId}: ${error.message}`
+                        `Error fetching meal details: ${mealError.message}`
                     )
                     return callback({
                         status: 500,
@@ -21,66 +23,146 @@ const participationService = {
                     })
                 }
 
-                if (results.length === 0) {
-                    logger.warn(`No participants found for meal ID ${mealId}`)
+                if (mealResults.length === 0) {
+                    logger.warn(`No meal found with ID ${mealId}`)
                     return callback({
                         status: 404,
-                        message: `Meal with ID ${mealId} does not exist.`,
+                        message: `Meal with ID ${mealId} not found.`,
                         data: {}
                     })
                 }
 
-                const userIds = []
-                for (let i = 0; i < results.length; i++) {
-                    userIds.push(results[i].userId)
+                const mealOwner = mealResults[0].cookId
+
+                logger.debug(`Meal owner ID: ${mealOwner}, User ID: ${userId}`)
+
+                if (mealOwner !== userId) {
+                    logger.warn(
+                        `User ${userId} is not authorized to view participants for meal ${mealId}`
+                    )
+                    return callback({
+                        status: 403,
+                        message:
+                            'Forbidden: You are not authorized to view this information.',
+                        data: {}
+                    })
                 }
 
-                const userDetails = []
+                db.query(
+                    'SELECT userId FROM meal_participants_user WHERE mealId = ?',
+                    [mealId],
+                    (error, results) => {
+                        if (error) {
+                            logger.error(
+                                `Error fetching participants: ${error.message}`
+                            )
+                            return callback({
+                                status: 500,
+                                message: 'Internal Server Error',
+                                data: {}
+                            })
+                        }
 
-                let index = 0
+                        if (results.length === 0) {
+                            logger.warn(
+                                `No participants found for meal ID ${mealId}`
+                            )
+                            return callback(null, {
+                                status: 200,
+                                message: 'No participants found',
+                                data: []
+                            })
+                        }
 
-                const fetchNextUserDetail = () => {
-                    if (index >= userIds.length) {
-                        logger.info(
-                            `Participants found for meal ID ${mealId}: ${userDetails.length} participants`
-                        )
-                        return callback(null, {
-                            status: 200,
-                            message: `Found ${userIds.length} participants for meal ID ${mealId}`,
-                            data: userDetails
-                        })
-                    }
+                        const userIds = results.map((row) => row.userId)
+                        const userDetails = []
 
-                    userService.getByIdName(
-                        userIds[index],
-                        (userError, userResult) => {
-                            if (userError) {
-                                logger.error(
-                                    `Error fetching details for user ID ${userIds[index]}: ${userError.message}`
+                        const fetchUserDetails = userIds.map((userId) => {
+                            return new Promise((resolve, reject) => {
+                                userService.getByIdName(
+                                    userId,
+                                    (userError, userResult) => {
+                                        if (userError) {
+                                            reject(userError)
+                                        } else {
+                                            resolve(userResult.data.user)
+                                        }
+                                    }
                                 )
-                                return callback({
+                            })
+                        })
+
+                        Promise.all(fetchUserDetails)
+                            .then((userDetails) => {
+                                logger.info(
+                                    `Participants found for meal ID ${mealId}: ${userDetails.length}`
+                                )
+                                callback(null, {
+                                    status: 200,
+                                    message:
+                                        'Participants fetched successfully',
+                                    data: userDetails
+                                })
+                            })
+                            .catch((error) => {
+                                logger.error(
+                                    `Error fetching user details: ${error.message}`
+                                )
+                                callback({
                                     status: 500,
                                     message:
                                         'Internal Server Error while fetching user details',
                                     data: {}
                                 })
-                            }
-
-                            userDetails.push(userResult.data.user)
-                            index++
-                            fetchNextUserDetail()
-                        }
-                    )
-                }
-
-                fetchNextUserDetail()
+                            })
+                    }
+                )
             }
         )
     },
 
-    getParticipantById: (mealId, userId, callback) => {
+    getParticipantById: (mealId, userId, requesterId, callback) => {
         logger.trace(
-            `Fetching participant with userId: ${userId} for mealId: ${mealId}`
+            `Fetching participant with userId: ${userId} for mealId: ${mealId} by requesterId: ${requesterId}`
+        )
+
+        db.query(
+            'SELECT cookId FROM meal WHERE id = ?',
+            [mealId],
+            (mealError, mealResults) => {
+                if (mealError) {
+                    logger.error(
+                        `Error fetching meal details: ${mealError.message}`
+                    )
+                    return callback({
+                        status: 500,
+                        message: 'Internal Server Error',
+                        data: {}
+                    })
+                }
+
+                if (mealResults.length === 0) {
+                    logger.warn(`No meal found with ID ${mealId}`)
+                    return callback({
+                        status: 404,
+                        message: `Meal with ID ${mealId} not found.`,
+                        data: {}
+                    })
+                }
+
+                const mealOwner = mealResults[0].cookId
+                if (mealOwner !== requesterId) {
+                    logger.warn(
+                        `Requester ${requesterId} is not authorized to view participant details for meal ${mealId}`
+                    )
+                    return callback({
+                        status: 403,
+                        message:
+                            'Forbidden: You are not authorized to view this information.',
+                        data: {}
+                    })
+                }
+            }
         )
 
         db.query(
