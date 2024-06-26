@@ -76,6 +76,48 @@ const participationService = {
                 fetchNextUserDetail()
             }
         )
+    },
+
+    getParticipantById: (mealId, userId, callback) => {
+        logger.trace(
+            `Fetching participant with userId: ${userId} for mealId: ${mealId}`
+        )
+
+        db.query(
+            `SELECT firstName, LastName, isActive, emailAdress, phoneNumber, roles, city, street 
+             FROM user 
+             WHERE id IN (SELECT userId FROM meal_participants_user WHERE mealId = ? AND userId = ?)`,
+            [mealId, userId],
+            (err, result) => {
+                if (err) {
+                    logger.error(
+                        'Error fetching participant:',
+                        err.message || 'unknown error'
+                    )
+                    callback(err, null)
+                } else {
+                    if (result.length === 0) {
+                        logger.warn(
+                            `Participant not found for userId: ${userId} and mealId: ${mealId}`
+                        )
+                        callback({
+                            status: 404,
+                            message: `Participant not found for userId: ${userId} and mealId: ${mealId}`,
+                            data: {}
+                        })
+                    } else {
+                        logger.info(
+                            `Participant found for userId: ${userId} and mealId: ${mealId}`
+                        )
+                        callback(null, {
+                            status: 200,
+                            message: `Found participant for userId: ${userId} and mealId: ${mealId}`,
+                            data: result
+                        })
+                    }
+                }
+            }
+        )
     }
 }
 

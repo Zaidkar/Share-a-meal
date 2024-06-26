@@ -28,6 +28,26 @@ let participationController = {
                 })
             }
         })
+    },
+
+    getParticipantById: (req, res, next) => {
+        logger.info('Controller: get participant by id')
+        participationService.getParticipantById(
+            parseInt(req.params.mealId),
+            parseInt(req.params.participantId),
+            (error, success) => {
+                if (error) {
+                    next({
+                        status: error.status,
+                        message: error.message,
+                        data: {}
+                    })
+                }
+                if (success) {
+                    res.status(200).json({ ...success })
+                }
+            }
+        )
     }
 }
 

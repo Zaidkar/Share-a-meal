@@ -37,7 +37,7 @@ const INSERT_MEALS = `INSERT INTO \`meal\` VALUES
 
 const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2),(1,3),(1,5),(2,4),(3,3),(3,4),(4,2),(5,4);`
 
-describe('UC-403 Opvragen van deelnemers', () => {
+describe('UC-404 Opvragen van details van deelnemer', () => {
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {
@@ -55,11 +55,12 @@ describe('UC-403 Opvragen van deelnemers', () => {
         })
     })
 
-    it('TC-403-1 Lijst van deelnemers aan een maaltijd geretourneerd', (done) => {
+    it('TC-404-1 Details van deelnemer aan een maaltijd geretourneerd', (done) => {
         const mealId = 1
+        const userId = 2
         const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
-            .get(`${endpointToTest}/${mealId}/participants`)
+            .get(`${endpointToTest}/${mealId}/participants/${userId}`)
             .set('Authorization', `Bearer ${token}`)
             .end((err, res) => {
                 if (err) {
@@ -67,23 +68,15 @@ describe('UC-403 Opvragen van deelnemers', () => {
                 } else {
                     chai.expect(res).to.have.status(200)
                     chai.expect(res.body).to.be.an('object')
-                    chai.expect(res.body)
-                        .to.have.property('data')
-                        .that.is.an('array')
-                        .with.lengthOf(3)
-
-                    res.body.data.forEach((participant) => {
-                        chai.expect(participant).to.have.property('id')
-                        chai.expect(participant).to.have.property('firstName')
-                        chai.expect(participant).to.have.property('lastName')
-                    })
+                    chai.expect(res.body).to.have.property('data')
+                    chai.expect(res.body.data[0]).to.have.property('firstName')
 
                     done()
                 }
             })
     })
 
-    it('TC-403-2 Niet ingelogd', (done) => {
+    it('TC-404-2 Niet ingelogd', (done) => {
         const mealId = 1
         chai.request(server)
             .get(`${endpointToTest}/${mealId}/participants`)

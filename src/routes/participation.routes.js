@@ -9,4 +9,10 @@ router.get(
     participationController.getAllParticipants
 )
 
+router.get(
+    '/api/meal/:mealId/participants/:participantId',
+    validateToken,
+    participationController.getParticipantById
+)
+
 module.exports = router
