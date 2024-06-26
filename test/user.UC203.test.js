@@ -37,7 +37,7 @@ const INSERT_MEALS = `INSERT INTO \`meal\` VALUES
 
 const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2),(1,3),(1,5),(2,4),(3,3),(3,4),(4,2),(5,4);`
 
-describe('UC203 Opvragen van gebruikersprofiel', () => {
+describe('UC-203 Opvragen van gebruikersprofiel', () => {
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {

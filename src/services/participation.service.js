@@ -1,93 +1,82 @@
 const db = require('../dao/mysql-db')
 const logger = require('../util/logger')
-const mealService = require('./meal.service')
+const userService = require('./user.service')
 
-const registrationService = {
-    registerForMeal: (userId, mealId, token, callback) => {
-        if (!validateToken(token)) {
-            const error = {
-                status: 401,
-                message: 'Unauthorized: Invalid or expired token.'
-            }
-            logger.error('Unauthorized: Invalid or expired token.')
-            return callback(error, null)
-        }
+const participationService = {
+    getAllParticipants: (mealId, callback = () => {}) => {
+        logger.info(`Fetching participants for meal ID: ${mealId}`)
 
-        mealService.getById(mealId, (mealError, meal) => {
-            if (mealError) {
-                logger.error(
-                    `Error fetching meal with id ${mealId}: ${mealError}`
-                )
-                return callback(mealError, null)
-            }
-
-            if (!meal || !meal.isActive) {
-                const error = {
-                    status: 404,
-                    message: `Meal with id ${mealId} not found or is not active.`
+        db.query(
+            'SELECT userId FROM meal_participants_user WHERE mealId = ?',
+            [mealId],
+            (error, results) => {
+                if (error) {
+                    logger.error(
+                        `Database error while fetching participants for meal ID ${mealId}: ${error.message}`
+                    )
+                    return callback({
+                        status: 500,
+                        message: 'Internal Server Error',
+                        data: {}
+                    })
                 }
-                logger.error(
-                    `Meal with id ${mealId} not found or is not active.`
-                )
-                return callback(error, null)
-            }
 
-            if (meal.currentParticipants >= meal.maxAmountOfParticipants) {
-                const error = {
-                    status: 403,
-                    message:
-                        'Maximum number of participants reached for this meal.'
+                if (results.length === 0) {
+                    logger.warn(`No participants found for meal ID ${mealId}`)
+                    return callback({
+                        status: 404,
+                        message: `Meal with ID ${mealId} does not exist.`,
+                        data: {}
+                    })
                 }
-                logger.error(
-                    'Maximum number of participants reached for this meal.'
-                )
-                return callback(error, null)
-            }
 
-            const connection = db.getConnection()
-            connection.query(
-                'INSERT INTO meal_participants (mealId, userId) VALUES (?, ?)',
-                [mealId, userId],
-                (insertError, results) => {
-                    connection.release()
+                const userIds = []
+                for (let i = 0; i < results.length; i++) {
+                    userIds.push(results[i].userId)
+                }
 
-                    if (insertError) {
-                        logger.error(
-                            `Error inserting participant for meal ${mealId}: ${insertError}`
+                const userDetails = []
+
+                let index = 0
+
+                const fetchNextUserDetail = () => {
+                    if (index >= userIds.length) {
+                        logger.info(
+                            `Participants found for meal ID ${mealId}: ${userDetails.length} participants`
                         )
-                        return callback(insertError, null)
+                        return callback(null, {
+                            status: 200,
+                            message: `Found ${userIds.length} participants for meal ID ${mealId}`,
+                            data: userDetails
+                        })
                     }
 
-                    mealService.update(
-                        mealId,
-                        { currentParticipants: meal.currentParticipants + 1 },
-                        userId,
-                        (updateError) => {
-                            if (updateError) {
+                    userService.getById(
+                        userIds[index],
+                        (userError, userResult) => {
+                            if (userError) {
                                 logger.error(
-                                    `Error updating meal participants for meal ${mealId}: ${updateError}`
+                                    `Error fetching details for user ID ${userIds[index]}: ${userError.message}`
                                 )
-                                return callback(updateError, null)
+                                return callback({
+                                    status: 500,
+                                    message:
+                                        'Internal Server Error while fetching user details',
+                                    data: {}
+                                })
                             }
 
-                            const registrationId = results.insertId
-                            logger.info(
-                                `User ${userId} successfully registered for meal ${mealId}`
-                            )
-
-                            const response = {
-                                message: 'Registration successful.',
-                                registrationId: registrationId,
-                                meal: meal
-                            }
-
-                            callback(null, response)
+                            userDetails.push(userResult.data.user)
+                            index++
+                            fetchNextUserDetail()
                         }
                     )
                 }
-            )
-        })
+
+                fetchNextUserDetail()
+            }
+        )
     }
 }
 
-module.exports = registrationService
+module.exports = participationService

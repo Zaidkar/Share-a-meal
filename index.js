@@ -2,6 +2,7 @@ const express = require('express')
 const userRoutes = require('./src/routes/user.routes')
 const mealRoutes = require('./src/routes/meal.routes')
 const authRoutes = require('./src/routes/authentication.routes').routes
+const participantsRoutes = require('./src/routes/participation.routes')
 const logger = require('./src/util/logger')
 
 const app = express()
@@ -40,6 +41,7 @@ app.get('/api/info', (req, res) => {
 app.use(userRoutes)
 app.use(authRoutes)
 app.use(mealRoutes)
+app.use(participantsRoutes)
 
 // Hier komt de route error handler te staan!
 app.use((req, res, next) => {

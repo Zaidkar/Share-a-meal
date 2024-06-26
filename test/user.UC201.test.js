@@ -25,7 +25,7 @@ const INSERT_USER =
     'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
     '(1, "Zaid", "Karmoudi", "zaidkarmoudi@mail.com", "secret", "Lavadijk", "Roosendaal");'
 
-describe('UC201 Registreren als nieuwe user', () => {
+describe('UC-201 Registreren als nieuwe user', () => {
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {

@@ -25,7 +25,7 @@ const INSERT_USER =
     'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
     '(1, "Zaid", "Karmoudi", "zaidkarmoudi@mail.com", "secret", "Lavadijk", "Roosendaal");'
 
-describe('UC101 Inloggen', () => {
+describe('UC-101 Inloggen', () => {
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {

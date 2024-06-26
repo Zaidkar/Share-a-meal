@@ -14,7 +14,7 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
-const endpointToTest = '/api/user'
+const endpointToTest = '/api/meal'
 
 const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
 const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
@@ -37,7 +37,7 @@ const INSERT_MEALS = `INSERT INTO \`meal\` VALUES
 
 const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2),(1,3),(1,5),(2,4),(3,3),(3,4),(4,2),(5,4);`
 
-describe('UC-204 Opvragen ', () => {
+describe('UC-403 Opvragen van deelnemers', () => {
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {
@@ -55,61 +55,31 @@ describe('UC-204 Opvragen ', () => {
         })
     })
 
-    it('TC-204-1 Ongeldige token', (done) => {
-        chai.request(server)
-            .get(`${endpointToTest}/1`)
-            .set('Authorization', 'Bearer ' + 'invalid_token')
-            .end((err, res) => {
-                chai.expect(res).to.have.status(401)
-                chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body)
-                    .to.have.property('message')
-                    .equals('Not authorized!')
-                chai
-                    .expect(res.body)
-                    .to.have.property('data')
-                    .that.is.an('object').that.is.empty
-
-                done()
-            })
-    })
-
-    it('TC-204-2 Gebruiker-ID bestaat niet', (done) => {
-        const nonExistingUserId = 7
+    it('TC-403-1 Lijst van deelnemers aan een maaltijd geretourneerd', (done) => {
+        const mealId = 1
         const token = jwt.sign({ userId: 1 }, jwtSecretKey)
-
-        database.getConnection(function (err, connection) {
-            if (err) return done(err)
-            const query = 'SELECT id FROM user WHERE id = ?'
-            connection.query(
-                query,
-                [nonExistingUserId],
-                function (error, results, fields) {
-                    connection.release()
-                    chai.request(server)
-                        .get(`${endpointToTest}/${nonExistingUserId}`)
-                        .set('Authorization', `Bearer ${token}`)
-                        .end((err, res) => {
-                            chai.expect(res).to.have.status(404)
-                            chai.expect(res.body).to.be.a('object')
-                            done()
-                        })
-                }
-            )
-        })
-    })
-
-    it('TC-204-3 Gebruiker-ID bestaat', (done) => {
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
-
         chai.request(server)
-            .get(`${endpointToTest}/1`)
+            .get(`${endpointToTest}/${mealId}/participants`)
             .set('Authorization', `Bearer ${token}`)
             .end((err, res) => {
-                res.should.have.status(200)
-                res.body.should.be.an('object')
-                res.body.should.have.property('data')
-                done()
+                if (err) {
+                    return done(err)
+                } else {
+                    chai.expect(res).to.have.status(200)
+                    chai.expect(res.body).to.be.an('object')
+                    chai.expect(res.body)
+                        .to.have.property('data')
+                        .that.is.an('array')
+                        .with.lengthOf(3)
+
+                    res.body.data.forEach((participant) => {
+                        chai.expect(participant).to.have.property('id')
+                        chai.expect(participant).to.have.property('firstName')
+                        chai.expect(participant).to.have.property('lastName')
+                    })
+
+                    done()
+                }
             })
     })
 })
