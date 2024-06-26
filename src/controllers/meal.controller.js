@@ -3,7 +3,7 @@ const logger = require('../util/logger')
 
 let mealController = {
     create: (req, res, next) => {
-        logger.trace(`create mealController: ${mealId}`)
+        logger.trace('create mealController')
 
         const meal = req.body
         const userId = req.userId
@@ -30,7 +30,7 @@ let mealController = {
         const mealId = req.params.mealId
         const meal = req.body
         const userId = req.userId
-        logger.trace(`update mealController: ${mealId}`)
+        logger.info('`update mealController:', mealId, meal)
         mealService.update(mealId, meal, userId, (error, success) => {
             if (error) {
                 return next({
@@ -51,9 +51,8 @@ let mealController = {
 
     delete: (req, res, next) => {
         const mealId = req.params.mealId
-        const userId = req.userId
-        logger.trace(`delete mealController: ${mealId}`)
-        mealService.delete(mealId, userId, (error, success) => {
+        logger.trace('delete mealController:', mealId)
+        mealService.delete(mealId, (error, success) => {
             if (error) {
                 if (error.status === 404) {
                     return res.status(404).json({
@@ -101,7 +100,7 @@ let mealController = {
 
     getById: (req, res, next) => {
         const mealId = req.params.mealId
-        logger.trace(`getById mealController: ${mealId}`)
+        logger.trace('getById mealController:', mealId)
         mealService.getById(mealId, (error, success) => {
             if (error) {
                 return next({
@@ -122,7 +121,7 @@ let mealController = {
 
     getAllParticipants: (req, res, next) => {
         const mealId = req.params.mealId
-        logger.info('getAllParticipants', mealId)
+        logger.trace('getAllParticipants', mealId)
         mealService.getAllParticipants(mealId, (error, success) => {
             if (error) {
                 return next({

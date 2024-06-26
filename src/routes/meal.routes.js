@@ -5,38 +5,33 @@ chai.should()
 const router = express.Router()
 const mealController = require('../controllers/meal.controller')
 const validateToken = require('./authentication.routes').validateToken
+const validateAuthorizeMeal =
+    require('./authentication.routes').validateAuthorizeMeal
 
 const validateMealCreateChaiExpect = (req, res, next) => {
     try {
-        assert(req.body.name, 'name field is missing or incorrect')
-        chai.expect(req.body.name).to.be.a('string')
-        chai.expect(req.body.name).to.not.be.empty
-
-        assert(
-            req.body.description,
-            'description field is missing or incorrect'
+        chai
+            .expect(req.body.name, 'Missing or incorrect name field')
+            .to.be.a('string').and.to.not.be.empty
+        chai
+            .expect(
+                req.body.description,
+                'Missing or incorrect description field'
+            )
+            .to.be.a('string').and.to.not.be.empty
+        chai.expect(req.body.price, 'Missing or incorrect price field').to.be.a(
+            'number'
         )
-        chai.expect(req.body.description).to.be.a('string')
-        chai.expect(req.body.description).to.not.be.empty
-
-        assert(req.body.price, 'price field is missing or incorrect')
-        chai.expect(req.body.price).to.be.a('number')
-        chai.expect(req.body.price).to.not.be.empty
-
-        assert(req.body.dateTime, 'dateTime field is missing or incorrect')
-        chai.expect(req.body.dateTime).to.be.a('string')
-        chai.expect(req.body.dateTime).to.not.be.empty
-
-        assert(
+        chai
+            .expect(req.body.dateTime, 'Missing or incorrect dateTime field')
+            .to.be.a('string').and.to.not.be.empty
+        chai.expect(
             req.body.maxAmountOfParticipants,
-            'maxAmountOfParticipants field is missing or incorrect'
-        )
-        chai.expect(req.body.maxAmountOfParticipants).to.be.a('number')
-        chai.expect(req.body.maxAmountOfParticipants).to.not.be.empty
-
-        assert(req.body.imageUrl, 'imageUrl field is missing or incorrect')
-        chai.expect(req.body.imageUrl).to.be.a('string')
-        chai.expect(req.body.imageUrl).to.not.be.empty
+            'Missing or incorrect maxAmountOfParticipants field'
+        ).to.be.a('number')
+        chai
+            .expect(req.body.imageUrl, 'Missing or incorrect imageUrl field')
+            .to.be.a('string').and.to.not.be.empty
 
         next()
     } catch (ex) {
@@ -50,21 +45,16 @@ const validateMealCreateChaiExpect = (req, res, next) => {
 
 const validateMealUpdateChaiExpect = (req, res, next) => {
     try {
-        assert(req.body.name, 'name field is missing or incorrect')
-        chai.expect(req.body.name).to.be.a('string')
-        chai.expect(req.body.name).to.exist
-
-        assert(req.body.price !== undefined, 'price field is missing')
-        chai.expect(req.body.price).to.be.a('number')
-        chai.expect(req.body.price).to.exist
-
-        assert(
-            req.body.maxAmountOfParticipants !== undefined,
-            'maxAmountOfParticipants field is missing or incorrect'
+        chai
+            .expect(req.body.name, 'Missing or incorrect name field')
+            .to.be.a('string').and.to.not.be.empty
+        chai.expect(req.body.price, 'Missing or incorrect price field').to.be.a(
+            'number'
         )
-        chai.expect(req.body.maxAmountOfParticipants).to.be.a('number')
-        chai.expect(req.body.maxAmountOfParticipants).to.exist
-
+        chai.expect(
+            req.body.maxAmountOfParticipants,
+            'Missing or incorrect maxAmountOfParticipants field'
+        ).to.be.a('number')
         next()
     } catch (ex) {
         return res.status(400).json({
@@ -75,6 +65,7 @@ const validateMealUpdateChaiExpect = (req, res, next) => {
     }
 }
 
+// MealRoutes
 router.post(
     '/api/meal',
     validateToken,
@@ -82,23 +73,23 @@ router.post(
     mealController.create
 )
 
-router.get('/api/meal', validateToken, mealController.getAll)
-
-router.get('/api/meal/:mealId', validateToken, mealController.getById)
-
-router.delete('/api/meal/:mealId', validateToken, mealController.delete)
-
 router.put(
     '/api/meal/:mealId',
     validateToken,
+    validateAuthorizeMeal,
     validateMealUpdateChaiExpect,
     mealController.update
 )
 
-router.get(
-    '/api/meal/:mealId/participants',
+router.get('/api/meal', validateToken, mealController.getAll)
+
+router.get('/api/meal/:mealId', validateToken, mealController.getById)
+
+router.delete(
+    '/api/meal/:mealId',
     validateToken,
-    mealController.getAllParticipants
+    validateAuthorizeMeal,
+    mealController.delete
 )
 
 module.exports = router

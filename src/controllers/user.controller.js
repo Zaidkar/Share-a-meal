@@ -45,11 +45,12 @@ let userController = {
 
     getById: (req, res, next) => {
         const userId = req.params.userId
+        logger.trace('userController: getById', userId)
         userService.getById(userId, (error, success) => {
             if (error) {
                 return next({
-                    status: 404,
-                    message: `User with id of ${userId} not found`,
+                    status: error.status,
+                    message: error.message,
                     data: {}
                 })
             }

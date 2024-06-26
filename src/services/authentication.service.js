@@ -1,9 +1,5 @@
-//
-// Authentication controller
-//
 const jwt = require('jsonwebtoken')
 const db = require('../dao/mysql-db')
-// const validateEmail = require('../util/emailvalidator')
 const logger = require('../util/logger')
 const jwtSecretKey = require('../util/config').secretkey
 
@@ -17,41 +13,33 @@ const authController = {
                 callback(err.message, null)
             }
             if (connection) {
-                // 1. Kijk of deze useraccount bestaat.
+                // Check if the user account exists.
                 connection.query(
-                    'SELECT * FROM `user` WHERE `emailAdress` = ?',
+                    'SELECT `id`, `emailAdress`, `password`, `firstName`, `lastName` FROM `user` WHERE `emailAdress` = ?',
                     [userCredentials.emailAdress],
                     (err, rows, fields) => {
                         connection.release()
                         if (err) {
                             logger.error('Error: ', err.toString())
-                            callback(error.message, null)
+                            callback(err.message, null)
                         }
-                        if (rows) {
-                            // 2. Er was een resultaat, check het password.
-                            if (
-                                rows &&
-                                rows.length === 1 &&
-                                rows[0].password == userCredentials.password
-                            ) {
-                                logger.debug(
-                                    'passwords DID match, sending userinfo and valid token'
+                        if (rows && rows.length === 1) {
+                            // User found, check the password.
+                            if (rows[0].password === userCredentials.password) {
+                                logger.trace(
+                                    'Passwords matched, sending user info and valid token'
                                 )
-                                // Extract the password from the userdata - we do not send that in the response.
                                 const { password, ...userinfo } = rows[0]
-                                // Create an object containing the data we want in the payload.
                                 const payload = {
                                     userId: userinfo.id
                                 }
-
                                 jwt.sign(
                                     payload,
                                     jwtSecretKey,
                                     { expiresIn: '12d' },
                                     (err, token) => {
-                                        logger.info(
-                                            'User logged in, sending: ',
-                                            userinfo
+                                        logger.trace(
+                                            'User logged in, sending user info and token'
                                         )
                                         callback(null, {
                                             status: 200,
@@ -61,19 +49,26 @@ const authController = {
                                     }
                                 )
                             } else {
-                                logger.debug(
-                                    'User not found or password invalid'
-                                )
+                                logger.trace('Password incorrect')
                                 callback(
                                     {
-                                        status: 404,
-                                        message:
-                                            'User not found or password invalid',
+                                        status: 400,
+                                        message: 'Password incorrect',
                                         data: {}
                                     },
                                     null
                                 )
                             }
+                        } else {
+                            logger.trace('User not found')
+                            callback(
+                                {
+                                    status: 404,
+                                    message: 'User not found',
+                                    data: {}
+                                },
+                                null
+                            )
                         }
                     }
                 )

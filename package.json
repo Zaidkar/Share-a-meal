@@ -1,6 +1,6 @@
 {
     "name": "Share a meal",
-    "version": "0.0.2",
+    "version": "1.0.0",
     "description": "This server is made so people all over the world can share meal recipes with each other",
     "main": "index.js",
     "scripts": {
