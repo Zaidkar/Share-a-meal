@@ -42,7 +42,6 @@ function validateToken(req, res, next) {
     // The headers should contain the authorization-field with value 'Bearer [token]'
     const authHeader = req.headers.authorization
     if (!authHeader) {
-        logger.warn('Authorization header missing!')
         next({
             status: 401,
             message: 'Authorization header missing!',
@@ -54,7 +53,6 @@ function validateToken(req, res, next) {
 
         jwt.verify(token, jwtSecretKey, (err, payload) => {
             if (err) {
-                logger.warn('Not authorized')
                 next({
                     status: 401,
                     message: 'Not authorized!',
@@ -106,9 +104,6 @@ function validateAuthorizeUser(req, res, next) {
         }
 
         if (parseInt(requestedUserId) !== tokenUserId) {
-            logger.warn(
-                `Unable to modify or delete data not beloning to your account`
-            )
             return next({
                 status: 403,
                 message: `Unable to modify or delete data not beloning to your account`,
@@ -162,9 +157,6 @@ function validateAuthorizeMeal(req, res, next) {
         }
 
         if (tokenUserId !== mealCookId) {
-            logger.warn(
-                `You are not authorized to modify or delete another user's data!`
-            )
             return next({
                 status: 403,
                 message: `You are not authorized to modify or delete another user's data!`,

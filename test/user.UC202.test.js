@@ -55,7 +55,7 @@ describe('UC-202 Opvragen van overzicht van users', () => {
         })
     })
 
-    it('TC-202-1 Toon alle gebruikers (minimaal 2)', (done) => {
+    it('TC-202-1 Toon alle gebruikers', (done) => {
         const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
             .get(endpointToTest)
@@ -63,6 +63,20 @@ describe('UC-202 Opvragen van overzicht van users', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(200)
                 chai.expect(res.body).to.be.an('object')
+                chai.expect(res.body).to.have.property('data')
+
+                chai.expect(res.body.data).to.have.lengthOf.at.least(1)
+
+                const user = res.body.data[0]
+                chai.expect(res.body.data[0]).to.have.property('id')
+                chai.expect(res.body.data[0]).to.have.property('firstName')
+                chai.expect(res.body.data[0]).to.have.property('lastName')
+                chai.expect(res.body.data[0]).to.have.property('isActive')
+                chai.expect(res.body.data[0]).to.have.property('emailAdress')
+                chai.expect(res.body.data[0]).to.have.property('phoneNumber')
+                chai.expect(res.body.data[0]).to.have.property('street')
+                chai.expect(res.body.data[0]).to.have.property('city')
+                chai.expect(res.body.data[0]).to.have.property('roles')
 
                 done()
             })
