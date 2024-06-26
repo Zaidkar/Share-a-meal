@@ -1,7 +1,7 @@
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const server = require('../index')
-const logger = require('../src/util/logger') // Ensure logger is imported correctly
+const logger = require('../src/util/logger')
 
 chai.should()
 chai.use(chaiHttp)

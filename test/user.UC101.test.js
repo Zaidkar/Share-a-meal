@@ -34,20 +34,16 @@ const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2)
 
 describe('UC101 Gebruiker inloggen', () => {
     beforeEach((done) => {
-        // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
         db.getConnection(function (err, connection) {
-            if (err) throw err // not connected!
+            if (err) throw err
 
-            // Use the connection
             connection.query(
                 CLEAR_DB + INSERT_USERS + INSERT_MEALS + INSERT_PARTICIPANTS,
                 function (error, results, fields) {
-                    // When done with the connection, release it.
                     connection.release()
 
-                    // Handle error after the release.
                     if (error) throw error
-                    // Let op dat je done() pas aanroept als de query callback eindigt!
+
                     logger.debug('beforeEach done')
                     done()
                 }
@@ -85,7 +81,7 @@ describe('UC101 Gebruiker inloggen', () => {
                 .post(endpointToTest)
                 .send({
                     emailAdress: 'm.vandullemen@server.nl',
-                    password: 'secret5' //incorrect
+                    password: 'secret5'
                 })
                 .end((err, res) => {
                     chai.expect(res).to.have.status(404)

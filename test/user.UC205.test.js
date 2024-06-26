@@ -24,7 +24,7 @@ const INSERT_USER =
     '(1, "first", "last", "name@server.nl", "secret", "street", "city");'
 
 describe('UC205 Updaten van usergegevens', () => {
-    let authToken // To store the JWT token
+    let authToken
 
     beforeEach((done) => {
         logger.debug('beforeEach called')
@@ -38,7 +38,6 @@ describe('UC205 Updaten van usergegevens', () => {
                     if (error) throw error
                     logger.debug('beforeEach done')
 
-                    // Generate JWT token
                     authToken = jwt.sign({ userId: 1 }, jwtSecretKey)
 
                     done()
