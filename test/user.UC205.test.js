@@ -1,6 +1,3 @@
-process.env.DB_DATABASE = process.env.DB_DATABASE || 'share-a-meal-testdb'
-process.env.LOGLEVEL = 'trace'
-
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const server = require('../index')
@@ -27,6 +24,8 @@ const INSERT_USER =
     '(1, "first", "last", "name@server.nl", "secret", "street", "city");'
 
 describe('UC205 Updaten van usergegevens', () => {
+    let authToken // To store the JWT token
+
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {
@@ -38,14 +37,20 @@ describe('UC205 Updaten van usergegevens', () => {
                     connection.release()
                     if (error) throw error
                     logger.debug('beforeEach done')
+
+                    // Generate JWT token
+                    authToken = jwt.sign({ userId: 1 }, jwtSecretKey)
+
                     done()
                 }
             )
         })
     })
+
     it('TC-205-1 Verplicht veld “emailAddress” ontbreekt', (done) => {
         chai.request(server)
             .put('/api/user/1')
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 firstName: 'Mark',
                 lastName: 'Van Dam',
@@ -69,6 +74,7 @@ describe('UC205 Updaten van usergegevens', () => {
     it('TC-205-3 Niet-valide telefoonnummer', (done) => {
         chai.request(server)
             .put('/api/user/1')
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 firstName: 'Hendrik',
                 lastName: 'Van Dam',
@@ -89,6 +95,7 @@ describe('UC205 Updaten van usergegevens', () => {
     it('TC-205-4 Gebruiker bestaat niet', (done) => {
         chai.request(server)
             .put('/api/user/3131')
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 firstName: 'Hendrik',
                 lastName: 'Van Dam',
@@ -109,6 +116,7 @@ describe('UC205 Updaten van usergegevens', () => {
     it('TC-205-6 Gebruiker succesvol gewijzigd', (done) => {
         chai.request(server)
             .put('/api/user/1')
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 firstName: 'Hendrik',
                 lastName: 'Van Dam',

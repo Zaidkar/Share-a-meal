@@ -160,9 +160,14 @@ router.post(
     userController.create
 )
 router.get('/api/user', userController.getAll)
-router.get('/api/user/:userId', userController.getById)
-router.put('/api/user/:userId', validateUserChaiExpect, userController.update)
-router.delete('/api/user/:userId', userController.delete)
+router.get('/api/user/:userId', validateToken, userController.getById)
+router.put(
+    '/api/user/:userId',
+    validateToken,
+    validateUserChaiExpect,
+    userController.update
+)
+router.delete('/api/user/:userId', validateToken, userController.delete)
 router.get('/api/profile', validateToken, userController.getProfile)
 
 module.exports = router

@@ -1,9 +1,3 @@
-process.env.DB_HOST = 'localhost'
-process.env.DB_PORT = '3306'
-process.env.DB_USER = 'share-a-meal-user'
-process.env.DB_PASSWORD = ''
-process.env.DB_DATABASE = 'share-a-meal'
-
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const server = require('../index')
@@ -17,7 +11,6 @@ const endpointToTest = '/api/login'
 describe('UC101 inloggen', () => {
     const db = require('../src/dao/mysql-db')
 
-    // Define the SQL queries to clear and insert data
     const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
     const CLEAR_PARTICIPANTS_TABLE =
         'DELETE IGNORE FROM `meal_participants_user`;'
