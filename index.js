@@ -1,5 +1,6 @@
 const express = require('express')
 const userRoutes = require('./src/routes/user.routes')
+const mealRoutes = require('./src/routes/meal.routes')
 const authRoutes = require('./src/routes/authentication.routes').routes
 const logger = require('./src/util/logger')
 
@@ -23,12 +24,12 @@ app.get('/', function (req, res) {
 })
 
 app.get('/api/info', (req, res) => {
-    console.log('GET /api/info')
+    logger.info('GET /api/info')
     const info = {
         name: 'Share a meal Restful API',
         studentName: 'Zaid Karmoudi',
         studentNumber: '2102960',
-        version: '0.1.0',
+        version: '1.0.0',
         description:
             'This is an Restful API for the Share a meal application made by Zaid Karmoudi.'
     }
@@ -37,7 +38,8 @@ app.get('/api/info', (req, res) => {
 
 // Hier komen alle routes
 app.use(userRoutes)
-app.use('/api/', authRoutes)
+app.use(authRoutes)
+app.use(mealRoutes)
 
 // Hier komt de route error handler te staan!
 app.use((req, res, next) => {
@@ -57,7 +59,7 @@ app.use((error, req, res, next) => {
     })
 })
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
 })
 

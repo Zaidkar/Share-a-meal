@@ -3,6 +3,7 @@ const logger = require('../util/logger')
 
 let userController = {
     create: (req, res, next) => {
+        logger.trace('create')
         const user = req.body
         userService.create(user, (error, success) => {
             if (error) {
@@ -44,11 +45,12 @@ let userController = {
 
     getById: (req, res, next) => {
         const userId = req.params.userId
+        logger.trace('userController: getById', userId)
         userService.getById(userId, (error, success) => {
             if (error) {
                 return next({
-                    status: 404,
-                    message: `User with id of ${userId} not found`,
+                    status: error.status,
+                    message: error.message,
                     data: {}
                 })
             }
