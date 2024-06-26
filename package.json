@@ -6,7 +6,7 @@
     "scripts": {
         "build": "node index.js",
         "dev": "nodemon index.js",
-        "test": "mocha -reporter spec test/**/*.test.js --exit"
+        "test": "node ./node_modules/mocha/bin/mocha --reporter spec --exit"
     },
     "keywords": [
         "nodejs",
