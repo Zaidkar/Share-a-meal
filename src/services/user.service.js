@@ -413,7 +413,6 @@ const userService = {
                                 }
                                 callback(null, {
                                     message: `Deleted user with id ${UserId}.`,
-                                    data: null,
                                     status: 200
                                 })
                             }
