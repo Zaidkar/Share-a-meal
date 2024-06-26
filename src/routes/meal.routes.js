@@ -65,7 +65,6 @@ const validateMealUpdateChaiExpect = (req, res, next) => {
     }
 }
 
-// MealRoutes
 router.post(
     '/api/meal',
     validateToken,

@@ -1,7 +1,7 @@
 {
     "name": "Share a meal",
     "version": "1.0.0",
-    "description": "This server is made so people all over the world can share meal recipes with each other",
+    "description": "Share a meal node.js Restful API made by Zaid Karmoudi for the course programmeren 4",
     "main": "index.js",
     "scripts": {
         "build": "node index.js",

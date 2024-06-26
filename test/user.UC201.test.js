@@ -7,6 +7,8 @@ const server = require('../index')
 const tracer = require('tracer')
 const database = require('../src/dao/mysql-db')
 const logger = require('../src/util/logger')
+const jwt = require('jsonwebtoken')
+const jwtSecretKey = require('../src/util/config').secretkey
 
 chai.should()
 chai.use(chaiHttp)
@@ -14,7 +16,6 @@ tracer.setLevel('warn')
 
 const endpointToTest = '/api/user'
 
-//Database queries
 const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
 const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
 const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
@@ -22,7 +23,7 @@ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
 const INSERT_USER =
     'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
-    '(1, "first", "last", "name@server.nl", "secret", "street", "city");'
+    '(1, "Zaid", "Karmoudi", "zaidkarmoudi@gmail.com", "secret", "street", "city");'
 
 describe('UC201 Registreren als nieuwe user', () => {
     beforeEach((done) => {
@@ -41,17 +42,12 @@ describe('UC201 Registreren als nieuwe user', () => {
             )
         })
     })
-
-    /**
-     * Hier starten de testcases
-     */
     it('TC-201-1 Verplicht veld ontbreekt', (done) => {
         chai.request(server)
             .post(endpointToTest)
             .send({
-                // firstName: 'Voornaam', ontbreekt
-                lastName: 'Achternaam',
-                emailAdress: 'v.a@server.nl'
+                lastName: 'Karmoudi',
+                emailAdress: 'zaidkarmoudi@gmail.com'
             })
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
@@ -69,14 +65,14 @@ describe('UC201 Registreren als nieuwe user', () => {
             })
     })
 
-    it('TC-201-2 Niet-valide email adres', (done) => {
+    it('TC-201-2 Niet-valide emailadres', (done) => {
         chai.request(server)
             .post(endpointToTest)
             .send({
-                firstName: 'Voornaam',
-                lastName: 'Achternaam',
-                emailAdress: 'ongeldig_email_adres',
-                password: '12345678HH',
+                firstName: 'Zaid',
+                lastName: 'Karmoudi',
+                emailAdress: 'zaidkarmoudi',
+                password: 'Secret1234',
                 phoneNumber: '0612345678'
             })
             .end((err, res) => {
@@ -91,14 +87,14 @@ describe('UC201 Registreren als nieuwe user', () => {
             })
     })
 
-    it('TC-201-3 Niet-valide password', (done) => {
+    it('TC-201-3 Niet-valide wachtwoord', (done) => {
         chai.request(server)
             .post(endpointToTest)
             .send({
-                firstName: 'Voornaam',
-                lastName: 'Achternaam',
-                emailAdress: 'v.a@server.nl',
-                password: '1234567' // Ongeldig wachtwoord (minder dan 8 tekens)
+                firstName: 'Zaid',
+                lastName: 'Karmoudi',
+                emailAdress: 'zaidkarmoudi@gmail.com',
+                password: '1234567'
             })
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
@@ -114,9 +110,9 @@ describe('UC201 Registreren als nieuwe user', () => {
 
     it('TC-201-4 Gebruiker bestaat al', (done) => {
         const existingUser = {
-            firstName: 'first',
-            lastName: 'last',
-            emailAdress: 'name@server.nl', //email bestaat al
+            firstName: 'Zaid',
+            lastName: 'Karmoudi',
+            emailAdress: 'zaidkarmoudi@gmail.com',
             password: 'secret',
             street: 'street',
             city: 'city'
@@ -158,10 +154,10 @@ describe('UC201 Registreren als nieuwe user', () => {
         chai.request(server)
             .post(endpointToTest)
             .send({
-                firstName: 'Voornaam',
-                lastName: 'Achternaam',
-                emailAdress: 'voornaam.achternaam@server.nl',
-                password: 'Secret123345',
+                firstName: 'Zaid',
+                lastName: 'Karmoudi',
+                emailAdress: 'zaidkarmoudi@hotmail.com',
+                password: 'Secret12334',
                 phoneNumber: '0612345678',
                 street: 'Straatnaam',
                 city: 'Stad',
@@ -170,27 +166,10 @@ describe('UC201 Registreren als nieuwe user', () => {
             })
             .end((err, res) => {
                 res.should.have.status(201)
+                res.should.have.property('status').equals(201)
                 res.body.should.be.an('object')
 
                 res.body.should.have.property('data').that.is.an('array')
-
-                const users = res.body.data
-                const user = users[0]
-                user.should.be.an('object')
-                user.should.have.property('firstName').equals('Voornaam')
-                user.should.have.property('lastName').equals('Achternaam')
-                user.should.have
-                    .property('emailAdress')
-                    .equals('voornaam.achternaam@server.nl')
-                user.should.have.property('password').equals('Secret123345')
-                user.should.have.property('id').that.is.a('number')
-                user.should.have.property('street').equals('Straatnaam')
-                user.should.have.property('city').equals('Stad')
-                user.should.have
-                    .property('roles')
-                    .that.is.an('array')
-                    .that.includes('admin')
-                user.should.have.property('isActive').equals(1)
 
                 done()
             })

@@ -7,7 +7,6 @@ const server = require('../index')
 const tracer = require('tracer')
 const database = require('../src/dao/mysql-db')
 const logger = require('../src/util/logger')
-
 const jwt = require('jsonwebtoken')
 const jwtSecretKey = require('../src/util/config').secretkey
 
@@ -17,7 +16,6 @@ tracer.setLevel('warn')
 
 const endpointToTest = '/api/user'
 
-//Database queries
 const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
 const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
 const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
@@ -107,7 +105,7 @@ describe('UC-206 Verwijderen van user', () => {
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals(
-                        `You are not authorized to modify or delete another user's data!`
+                        `Unable to modify or delete data not beloning to your account`
                     )
                 done()
             })

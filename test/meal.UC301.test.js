@@ -14,7 +14,7 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
-const endpointToTest = '/api/user/profile'
+const endpointToTest = '/api/meal'
 
 const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
 const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
@@ -37,7 +37,7 @@ const INSERT_MEALS = `INSERT INTO \`meal\` VALUES
 
 const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2),(1,3),(1,5),(2,4),(3,3),(3,4),(4,2),(5,4);`
 
-describe('UC203 Opvragen van gebruikersprofiel', () => {
+describe('UC-301 Toevoegen van maaltijd', () => {
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {
@@ -55,14 +55,55 @@ describe('UC203 Opvragen van gebruikersprofiel', () => {
         })
     })
 
-    it('TC-203-1 Ongeldig token', (done) => {
-        const invalidToken = 'invalidToken'
+    it('TC-301-1 Verplicht veld ontbreekt', (done) => {
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+
         chai.request(server)
-            .get(endpointToTest)
-            .set('Authorization', 'Bearer ' + invalidToken)
+            .post(endpointToTest)
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                description: 'Bologonese pasta with homemade pasta and sauce',
+                imageUrl:
+                    'https://ordinaryvegan.net/wp-content/uploads/2013/06/spaghetti-bolognese-680.jpg',
+                dateTime: '2024-12-31 23:59:59',
+                maxAmountOfParticipants: 5,
+                price: 8.5,
+                cookId: 1
+            })
+            .end((err, res) => {
+                chai.expect(res).to.have.status(400)
+                chai.expect(res.body).to.be.an('object')
+                chai.expect(res.body).to.have.property('status').equals(400)
+                chai.expect(res.body)
+                    .to.have.property('message')
+                    .contain('Missing or incorrect name field')
+                chai
+                    .expect(res.body)
+                    .to.have.property('data')
+                    .that.is.an('object').that.is.empty
+
+                done()
+            })
+    })
+
+    it('TC-301-2 Niet ingelogd', (done) => {
+        const invalidToken = 'ongeldige_token'
+
+        chai.request(server)
+            .post(`${endpointToTest}`)
+            .set('Authorization', `Bearer ${invalidToken}`)
+            .send({
+                description: 'Bologonese pasta with homemade pasta and sauce',
+                imageUrl:
+                    'https://ordinaryvegan.net/wp-content/uploads/2013/06/spaghetti-bolognese-680.jpg',
+                dateTime: '2024-12-31 23:59:59',
+                maxAmountOfParticipants: 5,
+                price: 8.5,
+                cookId: 1
+            })
             .end((err, res) => {
                 chai.expect(res).to.have.status(401)
-                chai.expect(res.body).to.be.a('object')
+                chai.expect(res.body).to.be.an('object')
                 chai.expect(res.body).to.have.property('status').equals(401)
                 chai.expect(res.body)
                     .to.have.property('message')
@@ -70,24 +111,36 @@ describe('UC203 Opvragen van gebruikersprofiel', () => {
                 chai
                     .expect(res.body)
                     .to.have.property('data')
-                    .that.is.a('object').that.is.empty
-
+                    .that.is.an('object').that.is.empty
                 done()
             })
     })
 
-    it('TC-203-2 Gebruiker is ingelogd met een geldig token', (done) => {
-        const validToken = jwt.sign({ id: 1 }, jwtSecretKey, {
-            expiresIn: '1h'
-        })
+    it('TC-301-3 Maaltijd succesvol toegevoegd', (done) => {
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
 
         chai.request(server)
-            .get(endpointToTest)
-            .set('Authorization', 'Bearer ' + validToken)
+            .post(endpointToTest)
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                name: 'Homemade Pasta Bolognese',
+                description: 'Bologonese pasta with homemade pasta and sauce',
+                price: 15.0,
+                isActive: true,
+                dateTime: '2021-12-31 23:59:59',
+                maxAmountOfParticipants: 8.5,
+                imageUrl:
+                    'https://ordinaryvegan.net/wp-content/uploads/2013/06/spaghetti-bolognese-680.jpg',
+                allergenes: ['gluten', 'lactose']
+            })
             .end((err, res) => {
-                chai.expect(res).to.have.status(200)
-                chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(200)
+                if (err) return done(err)
+                res.should.have.status(201)
+                res.body.should.be.a('object')
+                res.body.should.have.property('status').equal(201)
+                res.body.should.have.property('data').that.is.an('object').that
+                    .is.not.empty
+
                 done()
             })
     })

@@ -76,7 +76,6 @@ function validateToken(req, res, next) {
     }
 }
 
-// Middleware to authorize user
 function validateAuthorizeUser(req, res, next) {
     logger.info('authorizeUser called')
     logger.trace('Headers:', req.headers)
@@ -108,11 +107,11 @@ function validateAuthorizeUser(req, res, next) {
 
         if (parseInt(requestedUserId) !== tokenUserId) {
             logger.warn(
-                `You are not authorized to modify or delete another user's data!`
+                `Unable to modify or delete data not beloning to your account`
             )
             return next({
                 status: 403,
-                message: `You are not authorized to modify or delete another user's data!`,
+                message: `Unable to modify or delete data not beloning to your account`,
                 data: {}
             })
         }
@@ -121,7 +120,6 @@ function validateAuthorizeUser(req, res, next) {
     })
 }
 
-// Middleware to authorize meal
 function validateAuthorizeMeal(req, res, next) {
     logger.info('authorizeMeal called')
     logger.trace('Headers:', req.headers)
@@ -178,50 +176,8 @@ function validateAuthorizeMeal(req, res, next) {
     })
 }
 
-// Middleware to validate non-empty login
-function validateLoginNotEmpty(req, res, next) {
-    logger.info('validateLoginNotEmpty called')
-    logger.trace('Body:', req.body)
+routes.post('/api/login', validateLogin, AuthController.login)
 
-    try {
-        const email = req.body.emailAdress
-        const password = req.body.password
-
-        if (!email || email.trim() === '') {
-            return next({
-                status: 400,
-                message: 'email is required.',
-                data: {}
-            })
-        }
-
-        if (!password || password.trim() === '') {
-            return next({
-                status: 400,
-                message: 'password is required.',
-                data: {}
-            })
-        }
-
-        next()
-    } catch (ex) {
-        next({
-            status: 400,
-            message: ex.message,
-            data: {}
-        })
-    }
-}
-
-// Route for login
-routes.post(
-    '/api/login',
-    validateLoginNotEmpty,
-    validateLogin,
-    AuthController.login
-)
-
-// Exporting the routes and middleware
 module.exports = {
     routes,
     validateAuthorizeUser,

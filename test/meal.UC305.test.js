@@ -14,7 +14,7 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
-const endpointToTest = '/api/user/profile'
+const endpointToTest = '/api/meal'
 
 const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
 const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
@@ -37,7 +37,7 @@ const INSERT_MEALS = `INSERT INTO \`meal\` VALUES
 
 const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2),(1,3),(1,5),(2,4),(3,3),(3,4),(4,2),(5,4);`
 
-describe('UC203 Opvragen van gebruikersprofiel', () => {
+describe('UC-305 Verwijderen van maaltijd', () => {
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {
@@ -55,39 +55,85 @@ describe('UC203 Opvragen van gebruikersprofiel', () => {
         })
     })
 
-    it('TC-203-1 Ongeldig token', (done) => {
-        const invalidToken = 'invalidToken'
+    it('TC-305-1 Niet ingelogd', (done) => {
         chai.request(server)
-            .get(endpointToTest)
-            .set('Authorization', 'Bearer ' + invalidToken)
+            .delete(`${endpointToTest}/1`)
             .end((err, res) => {
                 chai.expect(res).to.have.status(401)
-                chai.expect(res.body).to.be.a('object')
+                chai.expect(res.body).to.be.an('object')
                 chai.expect(res.body).to.have.property('status').equals(401)
                 chai.expect(res.body)
                     .to.have.property('message')
-                    .equals('Not authorized!')
+                    .equals('Authorization header missing!')
                 chai
                     .expect(res.body)
                     .to.have.property('data')
-                    .that.is.a('object').that.is.empty
-
+                    .that.is.an('object').that.is.empty
                 done()
             })
     })
 
-    it('TC-203-2 Gebruiker is ingelogd met een geldig token', (done) => {
-        const validToken = jwt.sign({ id: 1 }, jwtSecretKey, {
-            expiresIn: '1h'
-        })
+    it('TC-305-2 Niet de eigenaar van de data', (done) => {
+        const token = jwt.sign({ userId: 2 }, jwtSecretKey)
 
         chai.request(server)
-            .get(endpointToTest)
-            .set('Authorization', 'Bearer ' + validToken)
+            .delete(`${endpointToTest}/1`)
+            .set('Authorization', `Bearer ${token}`)
+            .end((err, res) => {
+                chai.expect(res).to.have.status(403)
+                chai.expect(res.body).to.be.an('object')
+                chai.expect(res.body).to.have.property('status').equals(403)
+                chai
+                    .expect(res.body)
+                    .to.have.property('data')
+                    .that.is.an('object').that.is.empty
+                done()
+            })
+    })
+    it('TC-305-3 Maaltijd bestaat niet', (done) => {
+        const IncorrectMealId = -1
+        const query = 'DELETE FROM `meal` WHERE `id` = ?'
+
+        database.getConnection(function (err, connection) {
+            if (err) {
+                done(err)
+                return
+            }
+
+            connection.query(
+                query,
+                [IncorrectMealId],
+                function (error, results) {
+                    connection.release()
+                    if (error) {
+                        done(error)
+                        return
+                    }
+
+                    chai.expect(results.affectedRows).to.equal(0)
+                    done()
+                }
+            )
+        })
+    })
+
+    it('TC-305-4 Maaltijd succesvol verwijderd', (done) => {
+        const correctMealId = 1
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+
+        chai.request(server)
+            .delete(`${endpointToTest}/${correctMealId}`)
+            .set('Authorization', `Bearer ${token}`)
             .end((err, res) => {
                 chai.expect(res).to.have.status(200)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(200)
+                chai.expect(res.body).to.have.property('status').equal(200)
+                chai.expect(res.body)
+                    .to.have.property('message')
+                    .equal('Deleted meal with id 1.')
+                chai.expect(res.body).to.have.property('data')
+                chai.expect(res.body.data).to.be.an('object')
+
                 done()
             })
     })

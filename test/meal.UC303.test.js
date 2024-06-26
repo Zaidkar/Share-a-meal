@@ -14,7 +14,7 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
-const endpointToTest = '/api/user/profile'
+const endpointToTest = '/api/meal'
 
 const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
 const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
@@ -37,7 +37,7 @@ const INSERT_MEALS = `INSERT INTO \`meal\` VALUES
 
 const INSERT_PARTICIPANTS = `INSERT INTO \`meal_participants_user\` VALUES (1,2),(1,3),(1,5),(2,4),(3,3),(3,4),(4,2),(5,4);`
 
-describe('UC203 Opvragen van gebruikersprofiel', () => {
+describe('UC-303 Opvragen van alle maaltijden', () => {
     beforeEach((done) => {
         logger.debug('beforeEach called')
         database.getConnection(function (err, connection) {
@@ -55,40 +55,23 @@ describe('UC203 Opvragen van gebruikersprofiel', () => {
         })
     })
 
-    it('TC-203-1 Ongeldig token', (done) => {
-        const invalidToken = 'invalidToken'
+    it('TC-303-1 Lijst van maaltijden geretourneerd', (done) => {
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
             .get(endpointToTest)
-            .set('Authorization', 'Bearer ' + invalidToken)
+            .set('Authorization', `Bearer ${token}`)
             .end((err, res) => {
-                chai.expect(res).to.have.status(401)
-                chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(401)
-                chai.expect(res.body)
-                    .to.have.property('message')
-                    .equals('Not authorized!')
-                chai
-                    .expect(res.body)
-                    .to.have.property('data')
-                    .that.is.a('object').that.is.empty
-
-                done()
-            })
-    })
-
-    it('TC-203-2 Gebruiker is ingelogd met een geldig token', (done) => {
-        const validToken = jwt.sign({ id: 1 }, jwtSecretKey, {
-            expiresIn: '1h'
-        })
-
-        chai.request(server)
-            .get(endpointToTest)
-            .set('Authorization', 'Bearer ' + validToken)
-            .end((err, res) => {
-                chai.expect(res).to.have.status(200)
-                chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(200)
-                done()
+                if (err) {
+                    return done(err)
+                } else {
+                    chai.expect(res).to.have.status(200)
+                    chai.expect(res.body).to.be.an('object')
+                    chai.expect(res.body)
+                        .to.have.property('data')
+                        .that.is.an('array')
+                        .with.lengthOf.at.least(2)
+                    done()
+                }
             })
     })
 })

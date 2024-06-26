@@ -9,15 +9,6 @@ const validateAuthorizeUser =
     require('./authentication.routes').validateAuthorizeUser
 const logger = require('../util/logger')
 
-// Tijdelijke functie om niet bestaande routes op te vangen
-const notFound = (req, res, next) => {
-    res.status(404).json({
-        status: 404,
-        message: 'Route not found',
-        data: {}
-    })
-}
-
 const validateUserChaiExpect = (req, res, next) => {
     try {
         assert(req.body.firstName, 'Missing or incorrect firstName field')
@@ -70,7 +61,6 @@ const validateUserChaiExpect = (req, res, next) => {
     }
 }
 
-// Userroutes
 router.post('/api/user', validateUserChaiExpect, userController.create)
 
 router.get('/api/user', validateToken, userController.getAll)
