@@ -41,6 +41,7 @@ jobs:
             DB_USER: root
             DB_PASSWORD: root
             JWT_KEY: DitIsEenGeheim
+            SECRETKEY: DitIsEenGeheim
         services:
             mysql:
                 image: mysql:5.7
