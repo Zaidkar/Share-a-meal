@@ -51,7 +51,7 @@ const participationService = {
                         })
                     }
 
-                    userService.getById(
+                    userService.getByIdName(
                         userIds[index],
                         (userError, userResult) => {
                             if (userError) {

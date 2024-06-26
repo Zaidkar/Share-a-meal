@@ -194,6 +194,70 @@ const userService = {
         })
     },
 
+    getByIdName: (id, callback) => {
+        logger.info('getById', id)
+        db.getConnection(function (err, connection) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+                return
+            }
+
+            let userData = null
+
+            connection.query(
+                `SELECT id, firstName, lastName FROM \`user\` WHERE \`id\` = ?`,
+                [id],
+                function (error, userResults, fields) {
+                    if (error) {
+                        connection.release()
+                        logger.error(error)
+                        callback(error, null)
+                    } else {
+                        logger.debug(userResults)
+                        if (userResults.length === 0) {
+                            connection.release()
+                            callback(
+                                {
+                                    status: 404,
+                                    message: `Error: id ${id} does not exist!`
+                                },
+                                null
+                            )
+                            return
+                        }
+
+                        userData = userResults[0]
+
+                        connection.query(
+                            `SELECT * FROM meal WHERE cookId = ?`,
+                            [id],
+                            function (mealError, mealResults, fields) {
+                                connection.release()
+
+                                if (mealError) {
+                                    logger.error(mealError)
+                                    callback(mealError, null)
+                                } else {
+                                    logger.debug(mealResults)
+
+                                    callback(null, {
+                                        message: `Found user with id ${id}.`,
+                                        data: {
+                                            user: userData,
+                                            meals: mealResults
+                                        },
+                                        status: 200
+                                    })
+                                }
+                            }
+                        )
+                    }
+                }
+            )
+        })
+    },
+
     getProfile: (userId, callback) => {
         logger.info('getProfile userId:', userId)
 
