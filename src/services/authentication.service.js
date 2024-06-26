@@ -3,7 +3,7 @@ const db = require('../dao/mysql-db')
 const logger = require('../util/logger')
 const jwtSecretKey = require('../util/config').secretkey
 
-const authController = {
+const authenticationService = {
     login: (userCredentials, callback) => {
         logger.debug('login')
 
@@ -77,4 +77,4 @@ const authController = {
     }
 }
 
-module.exports = authController
+module.exports = authenticationService
