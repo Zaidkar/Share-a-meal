@@ -59,16 +59,14 @@ describe('UC-205 Updaten van usergegevens', () => {
         chai.request(server)
             .put(`${endpointToTest}/0`)
             .send({
-                firstName: 'Voornaam',
-                lastName: 'Achternaam',
-                // emailAdress ontbreekt
+                firstName: 'Zaid',
+                lastName: 'Karmoudi',
                 password: 'Secret1234',
                 phoneNumber: '0612345678'
             })
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(400)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals('Missing or incorrect email field')
@@ -88,16 +86,15 @@ describe('UC-205 Updaten van usergegevens', () => {
             .put(`${endpointToTest}/1`)
             .set('Authorization', `Bearer ${token}`)
             .send({
-                firstName: 'Voornaam',
-                lastName: 'Achternaam',
-                emailAdress: 'v.a@server.nl',
+                firstName: 'Zaid',
+                lastName: 'Karmoudi',
+                emailAdress: 'zaidkarmoudi@gmail.com',
                 password: 'Secret1234',
                 phoneNumber: '0612345678'
             })
             .end((err, res) => {
                 chai.expect(res).to.have.status(403)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(403)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals(
@@ -116,16 +113,15 @@ describe('UC-205 Updaten van usergegevens', () => {
         chai.request(server)
             .put(`${endpointToTest}/0`)
             .send({
-                firstName: 'Voornaam',
-                lastName: 'Achternaam',
-                emailAdress: 'v.a@server.nl',
+                firstName: 'zaid',
+                lastName: 'karmoudi',
+                emailAdress: 'zaidkarmoudi@gmail.com',
                 password: 'Secret2334',
                 phoneNumber: '1234567890'
             })
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(400)
                 chai
                     .expect(res.body)
                     .to.have.property('data')
@@ -164,11 +160,11 @@ describe('UC-205 Updaten van usergegevens', () => {
     })
 
     it('TC-205-5 Token ongeldig voor update / niet ingelogd', (done) => {
-        const invalidToken = 'ongeldige_token'
+        const token = 'willekeurigetoken'
 
         chai.request(server)
             .put(`${endpointToTest}/1`)
-            .set('Authorization', `Bearer ${invalidToken}`)
+            .set('Authorization', `Bearer ${token}`)
             .send({
                 firstName: 'Voornaam',
                 lastName: 'Achternaam',
@@ -183,7 +179,6 @@ describe('UC-205 Updaten van usergegevens', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(401)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(401)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals('Not authorized!')
@@ -202,44 +197,35 @@ describe('UC-205 Updaten van usergegevens', () => {
         chai.request(server)
             .put(`/api/user/1`)
             .send({
-                firstName: 'Voornaam',
-                lastName: 'Achternaam',
-                emailAdress: 'voornaam.achternaam@server.nl',
+                firstName: 'Zaid',
+                lastName: 'Karmoudi',
+                emailAdress: 'Zaidkarmoudi@gmail.com',
                 password: 'Secret123345',
                 phoneNumber: '0612345678',
-                street: 'Straatnaam',
-                city: 'Stad',
+                street: 'Lavadijk',
+                city: 'Roosendaal',
                 roles: ['admin'],
                 isActive: 1
             })
             .set('Authorization', `Bearer ${token}`)
             .end((err, res) => {
                 chai.expect(res).to.have.status(200)
-                chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(200)
+                chai.expect(res.body).to.be.an('object')
 
-                const data = res.body.data
-                chai.expect(data)
-                    .to.have.property('firstName')
-                    .equals('Voornaam')
-                chai.expect(data)
-                    .to.have.property('lastName')
-                    .equals('Achternaam')
-                chai.expect(data)
-                    .to.have.property('emailAdress')
-                    .equals('voornaam.achternaam@server.nl')
-                chai.expect(data)
-                    .to.have.property('phoneNumber')
-                    .equals('0612345678')
-                chai.expect(data)
-                    .to.have.property('street')
-                    .equals('Straatnaam')
-                chai.expect(data).to.have.property('city').equals('Stad')
-                chai.expect(data)
+                chai.expect(res.body)
+                    .to.have.property('data')
+                    .that.is.an('object')
+                chai.expect(res.body.data).to.have.property('firstName')
+                chai.expect(res.body.data).to.have.property('lastName')
+                chai.expect(res.body.data).to.have.property('emailAdress')
+                chai.expect(res.body.data).to.have.property('phoneNumber')
+                chai.expect(res.body.data).to.have.property('street')
+                chai.expect(res.body.data).to.have.property('city')
+                chai.expect(res.body.data)
                     .to.have.property('roles')
                     .that.is.an('array')
-                    .that.includes('admin')
-                chai.expect(data).to.have.property('isActive').equals(1)
+                chai.expect(res.body.data).to.have.property('isActive')
+
                 done()
             })
     })

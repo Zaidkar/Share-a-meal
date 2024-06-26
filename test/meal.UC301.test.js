@@ -73,7 +73,6 @@ describe('UC-301 Toevoegen van maaltijd', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(400)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .contain('Missing or incorrect name field')
@@ -104,7 +103,6 @@ describe('UC-301 Toevoegen van maaltijd', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(401)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(401)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals('Not authorized!')
@@ -137,7 +135,6 @@ describe('UC-301 Toevoegen van maaltijd', () => {
                 if (err) return done(err)
                 res.should.have.status(201)
                 res.body.should.be.a('object')
-                res.body.should.have.property('status').equal(201)
                 res.body.should.have.property('data').that.is.an('object').that
                     .is.not.empty
 

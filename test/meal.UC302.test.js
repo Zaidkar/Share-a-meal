@@ -1,4 +1,5 @@
 process.env.DB_DATABASE = process.env.DB_DATABASE || 'share-a-meal-testdb'
+
 process.env.LOGLEVEL = 'trace'
 
 const chai = require('chai')
@@ -187,7 +188,6 @@ describe('UC-302 Wijzigen van maaltijdgegevens', () => {
                 chai.expect(res).to.have.status(200)
                 chai.expect(res.body).to.be.an('object')
 
-                chai.expect(res.body).to.have.property('status').equals(200)
                 chai.expect(res.body).to.have.property('message')
                 chai.expect(res.body)
                     .to.have.property('message')

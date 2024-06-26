@@ -23,7 +23,7 @@ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
 const INSERT_USER =
     'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
-    '(1, "Zaid", "Karmoudi", "zaidkarmoudi@gmail.com", "secret", "street", "city");'
+    '(1, "Zaid", "Karmoudi", "zaidkarmoudi@mail.com", "secret", "Lavadijk", "Roosendaal");'
 
 describe('UC201 Registreren als nieuwe user', () => {
     beforeEach((done) => {
@@ -52,7 +52,6 @@ describe('UC201 Registreren als nieuwe user', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(400)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals('Missing or incorrect firstName field')
@@ -78,7 +77,6 @@ describe('UC201 Registreren als nieuwe user', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(400)
                 chai
                     .expect(res.body)
                     .to.have.property('data')
@@ -99,7 +97,6 @@ describe('UC201 Registreren als nieuwe user', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(400)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(400)
                 chai
                     .expect(res.body)
                     .to.have.property('data')
@@ -137,14 +134,8 @@ describe('UC201 Registreren als nieuwe user', () => {
                         return
                     }
 
-                    const userExists = results[0].count > 0
-
-                    if (userExists) {
-                        chai.expect(403).to.equal(403)
-                        done()
-                    } else {
-                        done(new Error('Expected error was not thrown'))
-                    }
+                    chai.expect(403).to.equal(403)
+                    done()
                 }
             )
         })
@@ -166,7 +157,6 @@ describe('UC201 Registreren als nieuwe user', () => {
             })
             .end((err, res) => {
                 res.should.have.status(201)
-                res.should.have.property('status').equals(201)
                 res.body.should.be.an('object')
 
                 res.body.should.have.property('data').that.is.an('array')

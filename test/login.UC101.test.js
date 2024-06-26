@@ -23,7 +23,7 @@ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
 const INSERT_USER =
     'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
-    '(1, "Zaid", "Karmoudi", "zaidkarmoudi@mail.com", "secret", "street", "city");'
+    '(1, "Zaid", "Karmoudi", "zaidkarmoudi@mail.com", "secret", "Lavadijk", "Roosendaal");'
 
 describe('UC101 Inloggen', () => {
     beforeEach((done) => {

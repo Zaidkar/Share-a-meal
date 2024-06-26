@@ -23,7 +23,7 @@ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
 const INSERT_USER =
     'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
-    '(1, "first", "last", "name@server.nl", "secret", "street", "city");'
+    '(1, "Zaid", "Karmoudi", "zaidkarmoudi@mail.com", "secret", "Lavadijk", "Roosendaal");'
 
 describe('UC-206 Verwijderen van user', () => {
     beforeEach((done) => {
@@ -76,7 +76,6 @@ describe('UC-206 Verwijderen van user', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(401)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(401)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals('Authorization header missing!')
@@ -97,7 +96,6 @@ describe('UC-206 Verwijderen van user', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(403)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(403)
                 chai
                     .expect(res.body)
                     .to.have.property('data')

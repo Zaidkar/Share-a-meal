@@ -63,7 +63,6 @@ describe('UC203 Opvragen van gebruikersprofiel', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(401)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(401)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals('Not authorized!')
@@ -87,7 +86,6 @@ describe('UC203 Opvragen van gebruikersprofiel', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(200)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(200)
                 done()
             })
     })

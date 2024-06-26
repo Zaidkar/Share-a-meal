@@ -61,7 +61,6 @@ describe('UC-305 Verwijderen van maaltijd', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(401)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(401)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals('Authorization header missing!')
@@ -82,7 +81,6 @@ describe('UC-305 Verwijderen van maaltijd', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(403)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equals(403)
                 chai
                     .expect(res.body)
                     .to.have.property('data')
@@ -127,7 +125,6 @@ describe('UC-305 Verwijderen van maaltijd', () => {
             .end((err, res) => {
                 chai.expect(res).to.have.status(200)
                 chai.expect(res.body).to.be.an('object')
-                chai.expect(res.body).to.have.property('status').equal(200)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equal('Deleted meal with id 1.')

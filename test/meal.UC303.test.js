@@ -70,6 +70,13 @@ describe('UC-303 Opvragen van alle maaltijden', () => {
                         .to.have.property('data')
                         .that.is.an('array')
                         .with.lengthOf.at.least(2)
+
+                    res.body.data.forEach((meal) => {
+                        chai.expect(meal).to.have.property('id')
+                        chai.expect(meal).to.have.property('name')
+                        chai.expect(meal).to.have.property('description')
+                    })
+
                     done()
                 }
             })
