@@ -42,8 +42,11 @@ jobs:
             - name: Unzip artifact for tests
               run: unzip release.zip
 
+            - name: Install dependencies
+              run: npm install
+
             - name: Run tests
-              run: npm test
+              run: npm test -- --DB_PASSWORD $MYSQL_ROOT_PASSWORD --DB_USER $DB_USER --DB_NAME $DB_DATABASE --DB_PORT $DB_PORT
 
     integrationtests:
         runs-on: ubuntu-latest
