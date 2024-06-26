@@ -40,7 +40,7 @@ jobs:
             DB_DATABASE: share_a_meal
             DB_USER: root
             DB_PASSWORD: root
-            JWT_KEY: supersecretkey
+            JWT_KEY: DitIsEenGeheim
         services:
             mysql:
                 image: mysql:5.7
